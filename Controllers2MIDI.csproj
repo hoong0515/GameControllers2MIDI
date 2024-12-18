@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0-windows7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <StartupObject>Program</StartupObject>
+    <StartupObject>Controllers2MIDI.Program</StartupObject>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NuGetAuditLevel>moderate</NuGetAuditLevel>
     <NuGetAudit>True</NuGetAudit>

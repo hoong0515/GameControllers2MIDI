@@ -2,22 +2,26 @@
 using System.Windows.Forms;
 using SDL2;
 
-class Program
+
+namespace Controllers2MIDI
 {
-    [STAThread]
-    static void Main(string[] args)
+    class Program
     {
+        [STAThread]
+        static void Main(string[] args)
+        {
 
-        SDL.SDL_Init(SDL.SDL_INIT_GAMECONTROLLER);
+            SDL.SDL_Init(SDL.SDL_INIT_GAMECONTROLLER);
 
-        MappingManager mappingManager = new MappingManager();
-        DeviceManager deviceManager = new DeviceManager();
-        MidiManager midiManager = new MidiManager();
+            MappingManager mappingManager = new MappingManager();
+            DeviceManager deviceManager = new DeviceManager();
+            MidiManager midiManager = new MidiManager();
 
-        deviceManager.ScanDevices();
+            deviceManager.ScanDevices();
 
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-        Application.Run(new UIManager(mappingManager, deviceManager, midiManager));
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new UIManager(mappingManager, deviceManager, midiManager));
+        }
     }
 }

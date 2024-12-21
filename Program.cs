@@ -13,9 +13,10 @@ namespace Controllers2MIDI
 
             SDL.SDL_Init(SDL.SDL_INIT_GAMECONTROLLER);
 
-            MappingManager mappingManager = new MappingManager();
             DeviceManager deviceManager = new DeviceManager();
-            MidiManager midiManager = new MidiManager();
+            deviceManager.StartUpdating();
+            MappingManager mappingManager = new MappingManager();
+            MidiManager midiManager = new MidiManager(deviceManager, mappingManager);
 
             deviceManager.ScanDevices();
 

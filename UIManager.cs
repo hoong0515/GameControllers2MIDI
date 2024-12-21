@@ -1,17 +1,30 @@
-﻿namespace Controllers2MIDI
+﻿using SDL2;
+
+namespace Controllers2MIDI
 {
     public partial class UIManager : Form
     {
+
+        private const short Threshold = 8000;
+
+
+
         private MappingManager mappingManager;
         private DeviceManager deviceManager;
         private MidiManager midiManager;
         private bool isProcessing = false;
+        private bool isInputCaptureActive = false;
+        private int currentRowIndex;
+
         public UIManager(MappingManager mappingManager, DeviceManager deviceManager, MidiManager midiManager)
         {
             this.mappingManager = mappingManager;
             this.deviceManager = deviceManager;
             this.midiManager = midiManager;
+            //deviceManager.ButtonPressed += HandleButtonInput;
+            //deviceManager.AxisMoved += HandleAxisInput;
             InitializeComponent();
+            InitializeGrid();
         }
 
 
@@ -39,6 +52,7 @@
                 isProcessing = false;
             }
 
+            dataGridView.Enabled = !isProcessing;
         }
 
 
@@ -53,6 +67,7 @@
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 mappingManager.LoadMappingFromJson(openFileDialog.FileName);
+                LoadMappingsIntoGrid();
                 MessageBox.Show("Mapping loaded successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
@@ -180,6 +195,251 @@
                 midiDeviceDropdown.SelectedIndex = 0; // 기본 선택
             }
         }
+
+        private void LoadMappingsIntoGrid()
+        {
+            if (dataGridView.InvokeRequired)
+            {
+                dataGridView.Invoke(new Action(LoadMappingsIntoGrid));
+                return;
+            }
+
+            dataGridView.Rows.Clear();
+            foreach (var mapping in mappingManager.GetAllMappings())
+            {
+                var dictionary = mapping.ToDictionary(getEnumName: true);
+
+                // DataGridView에 데이터 추가
+                dataGridView.Rows.Add(
+                    dictionary["input"].Substring(15),
+                    dictionary["map"].ToString(),
+                    dictionary["value"],
+                    dictionary["isInverted"],
+                    dictionary["key"].ToString(),
+                    dictionary["oct"].ToString(),
+                    dictionary["velocity"]
+                );
+            }
+        }
+
+        private void EnsureComboBoxItems(string columnName, string value)
+        {
+            var comboBoxColumn = dataGridView.Columns[columnName] as DataGridViewComboBoxColumn;
+            if (comboBoxColumn != null && !comboBoxColumn.Items.Contains(value))
+            {
+                comboBoxColumn.Items.Add(value); // 값이 없는 경우 추가
+            }
+        }
+
+
+
+        private void dataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            int rowIndex = e.RowIndex;
+            if (rowIndex < 0 || rowIndex >= mappingManager.GetAllMappings().Count) return;
+
+            var row = dataGridView.Rows[rowIndex];
+            var mapping = mappingManager.GetAllMappings()[rowIndex];
+
+            string input = row.Cells["Input"].Value.ToString();
+
+
+            // 데이터 유효성 검사
+
+
+            // dataGridView의 데이터를 Mapping 객체에 반영
+
+            if (Enum.TryParse("SDL_CONTROLLER_" + input, out SDL.SDL_GameControllerButton button))
+            {
+                mappingManager.ModifyMapping(mapping, button);
+            }
+            else if (Enum.TryParse("SDL_CONTROLLER_" + input, out SDL.SDL_GameControllerAxis axis))
+            {
+                mappingManager.ModifyMapping(mapping, axis);
+            }
+
+
+            mapping.ModifyNoteProperty(int.Parse(row.Cells["Value"].Value.ToString()), Enum.Parse<Key>(row.Cells["Key"].Value.ToString()), int.Parse(row.Cells["Octave"].Value.ToString()));
+
+
+            mapping.Map = Enum.Parse<Map>(row.Cells["Map"].Value.ToString());
+            mapping.IsInverted = (bool)row.Cells["isInverted"].Value;
+            mapping.Velocity = int.Parse(row.Cells["Velocity"].Value.ToString());
+
+
+
+            // 데이터 재로드
+            LoadMappingsIntoGrid();
+        }
+
+        private void AddNewMapping(object sender, EventArgs e)
+        {
+            var newMapping = new Mapping();
+            mappingManager.AddMapping(newMapping);
+            LoadMappingsIntoGrid(); // 데이터 재로드
+        }
+
+        private void DeleteSelectedMapping(object sender, EventArgs e)
+        {
+            foreach (DataGridViewRow row in dataGridView.SelectedRows)
+            {
+                if (row.Index < 0 || row.Index >= mappingManager.GetAllMappings().Count) continue;
+
+                var mapping = mappingManager.GetAllMappings()[row.Index];
+                mappingManager.RemoveMapping(mapping);
+            }
+            LoadMappingsIntoGrid(); // 데이터 재로드
+        }
+
+        private void InitializeGrid()
+        {
+            LoadMappingsIntoGrid(); // 매핑 데이터 로드
+        }
+
+        private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.ColumnIndex == dataGridView.Columns["Input"].Index && e.RowIndex >= 0)
+            {
+                if (isProcessing)
+                {
+                    MessageBox.Show("Cannot change input while processing is active!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                int rowIndex = e.RowIndex;
+                ShowInputCaptureDialog(rowIndex);
+            }
+        }
+        private void ShowInputCaptureDialog(int rowIndex)
+        {
+            if (isInputCaptureActive) return;
+
+            isInputCaptureActive = true;
+            currentRowIndex = rowIndex;
+
+            var dialog = new Form
+            {
+                Text = "Input Capture",
+                Size = new Size(300, 150),
+                StartPosition = FormStartPosition.CenterParent
+            };
+
+            // 메시지 라벨
+            var messageLabel = new Label
+            {
+                Text = "Press a button or move an axis on your controller.",
+                Dock = DockStyle.Top,
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            // 취소 버튼
+            var cancelButton = new Button
+            {
+                Text = "Cancel",
+                DialogResult = DialogResult.Cancel,
+                Dock = DockStyle.Bottom
+            };
+
+            dialog.Controls.Add(messageLabel);
+            dialog.Controls.Add(cancelButton);
+
+            // 입력 이벤트 핸들러
+            void OnButtonPressed(SDL.SDL_GameControllerButton button)
+            {
+                if (!isInputCaptureActive) return;
+
+                Invoke(new Action(() =>
+                {
+                    Console.WriteLine($"Input captured: Button {button}");
+                    ApplyInputToMapping(button, currentRowIndex);
+                    dialog.Close(); // 입력 후 창 닫기
+                }));
+            }
+
+            void OnAxisMoved(SDL.SDL_GameControllerAxis axis, short value)
+            {
+                if (!isInputCaptureActive) return;
+
+                if (value == short.MinValue || Math.Abs(value) > Threshold)
+                {
+                    Invoke(new Action(() =>
+                    {
+                        Console.WriteLine($"Input captured: Axis {axis} with value {value}");
+                        ApplyInputToMapping(axis, currentRowIndex);
+                        dialog.Close(); // 입력 후 창 닫기
+                    }));
+                }
+            }
+
+            // DeviceManager 이벤트 연결
+            deviceManager.ButtonPressed += OnButtonPressed;
+            deviceManager.AxisMoved += OnAxisMoved;
+
+            dialog.FormClosed += (s, e) =>
+            {
+                // 창 닫힘 처리
+                isInputCaptureActive = false;
+                deviceManager.ButtonPressed -= OnButtonPressed;
+                deviceManager.AxisMoved -= OnAxisMoved;
+            };
+
+            dialog.ShowDialog(this);
+        }
+
+
+
+        private void ApplyInputToMapping(SDL.SDL_GameControllerButton button, int rowIndex)
+        {
+            var row = dataGridView.Rows[rowIndex];
+            var mapping = mappingManager.GetAllMappings()[rowIndex];
+
+            mappingManager.ModifyMapping(mapping, button);
+            row.Cells["Input"].Value = button.ToString().Substring(15);
+
+            // 추가로 업데이트가 필요하다면 호출
+            LoadMappingsIntoGrid();
+        }
+
+        private void ApplyInputToMapping(SDL.SDL_GameControllerAxis axis, int rowIndex)
+        {
+            var row = dataGridView.Rows[rowIndex];
+            var mapping = mappingManager.GetAllMappings()[rowIndex];
+
+            mappingManager.ModifyMapping(mapping, axis);
+            
+            row.Cells["Input"].Value = axis.ToString().Substring(15);
+            LoadMappingsIntoGrid();
+        }
+
+        //private void HandleButtonInput(SDL.SDL_GameControllerButton button)
+        //{
+        //    if (!isInputCaptureActive) return;
+
+
+        //    Invoke(new Action(() =>
+        //    {
+        //        Console.WriteLine($"UI: Button {button} pressed for input capture");
+        //        ApplyInputToMapping(button, currentRowIndex);
+        //        isInputCaptureActive = false; // 입력 캡처 종료
+                
+        //    }));
+        //}
+
+        //private void HandleAxisInput(SDL.SDL_GameControllerAxis axis, short value)
+        //{
+        //    if (!isInputCaptureActive) return;
+
+        //    Invoke(new Action(() =>
+        //    {
+        //        if (Math.Abs(value) > Threshold)
+        //        {
+        //            Console.WriteLine($"UI: Axis {axis} moved with value {value} for input capture");
+        //            ApplyInputToMapping(axis, value, currentRowIndex);
+        //            isInputCaptureActive = false;
+        //        }
+        //    }));
+        //}
+
 
 
     }

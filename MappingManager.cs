@@ -54,6 +54,11 @@ namespace Controllers2MIDI
             return axisMappings;
         }
 
+        public List<Mapping> GetAllMappings()
+        {
+            return mappings;
+        }
+
         // 버튼 매핑 추가
         // 버튼, note, velocity(임의)를 받아서 매핑 추가
         // 또는 버튼, key, oct, velocity를 받아서 매핑 추가
@@ -106,6 +111,11 @@ namespace Controllers2MIDI
         // 또는 input과 value를 받아서 삭제
         public void RemoveMapping(Mapping mapping)
         {
+            Mapping.usingInputs[mapping.Input]--;
+            if (Mapping.usingInputs[mapping.Input] < 0)
+            {
+                Mapping.usingInputs.Remove(mapping.Input);
+            }
             mappings.Remove(mapping);
         }
         
@@ -115,11 +125,79 @@ namespace Controllers2MIDI
             {
                 if (mapping.Input == input && mapping.Value == value)
                 {
-                    mappings.Remove(mapping);
+                    RemoveMapping(mapping);
                     break;
                 }
             }
         }
+
+        public void ModifyMapping(Mapping mapping, SDL.SDL_GameControllerButton button)
+        {
+            if (mapping.Input == button)
+            {
+                return;
+            }
+            else
+            {
+                Mapping.usingInputs[mapping.Input]--;
+                if (Mapping.usingInputs[mapping.Input] < 0)
+                {
+                    Mapping.usingInputs.Remove(mapping.Input);
+                }
+
+                if (!Mapping.usingInputs.ContainsKey(button))
+                {
+                    Mapping.usingInputs[button] = 0;
+                }
+                else
+                {
+                    Mapping.usingInputs[button]++;
+                }
+            }
+            mapping.Input = button;
+            if (mapping.InputType == InputType.Axis)
+            {
+                mapping.InputType = InputType.Button;
+                mapping.Map = Map.Note;
+                mapping.Value = 60;
+                mapping.ModifyNoteProperty(60);
+            }
+        }
+
+
+        public void ModifyMapping(Mapping mapping, SDL.SDL_GameControllerAxis axis)
+        {
+            if (mapping.Input == axis)
+            {
+                return;
+            }
+            else
+            {
+                Mapping.usingInputs[mapping.Input]--;
+                if (Mapping.usingInputs[mapping.Input] < 0)
+                {
+                    Mapping.usingInputs.Remove(mapping.Input);
+                }
+
+                if (!Mapping.usingInputs.ContainsKey(axis))
+                {
+                    Mapping.usingInputs[axis] = 0;
+                }
+                else
+                {
+                    Mapping.usingInputs[axis]++;
+                }
+            }
+            mapping.Input = axis;
+
+            if (mapping.InputType == InputType.Button)
+            {
+                mapping.InputType = InputType.Axis;
+                mapping.Map = Controllers2MIDI.Map.CC;
+                mapping.Value = 1;
+            }
+        }
+
 
         // 매핑을 JSON 파일로 저장
         public void SaveMappingToJson(string filePath)
@@ -182,21 +260,6 @@ namespace Controllers2MIDI
         }
 
 
-
-        //buttonToNoteMap = ((IDictionary<string, int>)mappingData.ButtonToNote)
-        //    .ToDictionary(kvp => Enum.Parse<SDL.SDL_GameControllerButton>(kvp.Key), kvp => kvp.Value);
-
-        //axisToCCMap = ((IDictionary<string, dynamic>)mappingData.AxisToCCMap)
-        //    .ToDictionary(
-        //        kvp => Enum.Parse<SDL.SDL_GameControllerAxis>(kvp.Key),
-        //        kvp => ((int)kvp.Value.ccNumber, (bool)kvp.Value.invertDirection)
-        //    );
-
-        //axisToPitchbend = ((IDictionary<string, bool>)mappingData.AxisToPitchbend)
-        //    .ToDictionary(
-        //        kvp => Enum.Parse<SDL.SDL_GameControllerAxis>(kvp.Key),
-        //        kvp => kvp.Value
-        //    );
 
 
     }

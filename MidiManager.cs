@@ -10,14 +10,27 @@ namespace Controllers2MIDI
         private MidiOut midiOut;
         private int midiChannel = 1; // 기본 MIDI 채널
         private bool isProcessing = false;
+        private DeviceManager deviceManager;
+        private MappingManager mappingManager;
 
         // 상태 추적
         private Dictionary<int, bool> noteStates = new Dictionary<int, bool>(); // Note On/Off 상태
         private Dictionary<int, int> ccStates = new Dictionary<int, int>(); // CC 값
+        private Dictionary<SDL.SDL_GameControllerButton, bool> buttonStates = new Dictionary<SDL.SDL_GameControllerButton, bool>(); // 버튼 상태
         private int lastPitchBendValue = 0; // Pitch Bend 값 (초기값은 중앙)
 
         public MidiManager()
         {
+        }
+
+        public MidiManager(DeviceManager deviceManager, MappingManager mappingManager)
+        {
+            this.deviceManager = deviceManager;
+            // DeviceManager 이벤트 구독
+            deviceManager.ButtonPressed += HandleButtonInput;
+            deviceManager.ButtonReleased += HandleButtonInput;
+            deviceManager.AxisMoved += HandleAxisInput;
+            this.mappingManager = mappingManager;
         }
 
 
@@ -31,72 +44,79 @@ namespace Controllers2MIDI
 
             isProcessing = true;
 
-            Task.Run(() =>
+            // 버튼 상태 초기화
+            buttonStates.Clear();
+            foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
             {
-                Console.WriteLine("MIDI Processing Started.");
-                var buttonStates = new Dictionary<SDL.SDL_GameControllerButton, bool>();
-                while (isProcessing)
-                {
-                    SDL.SDL_GameControllerUpdate();
-                    foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
-                    {
-                        bool isPressed = SDL.SDL_GameControllerGetButton(activeController, button) == 1;
-                        List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
-                        if (isPressed && (!buttonStates.ContainsKey(button) || !buttonStates[button]))
-                        {
-                            if (buttonMappings.Count > 0)
-                            {
-
-                                foreach (Mapping mapping in buttonMappings)
-                                {
-                                    SendNoteOn(mapping.Value, mapping.Velocity);
-                                }
-                            }
-                        }
-                        else if (!isPressed && buttonStates.ContainsKey(button) && buttonStates[button])
-                        {
-                            // Note Off 처리
-                            if (buttonMappings.Count > 0)
-                            {
-
-                                foreach (Mapping mapping in buttonMappings)
-                                {
-                                    SendNoteOff(mapping.Value);
-                                }
-                            }
-                        }
-
-                        buttonStates[button] = isPressed;
-
-                    }
-
-                    foreach (SDL.SDL_GameControllerAxis axis in Enum.GetValues(typeof(SDL.SDL_GameControllerAxis)))
-                    {
-                        short axisValue = SDL.SDL_GameControllerGetAxis(activeController, axis);
-                        List<Mapping> axisMappings = mappingManager.GetAxisMappings(axis);
-
-                        foreach (Mapping mapping in axisMappings)
-                        {
-                            switch (mapping.Map)
-                            {
-                                case Map.CC:
-                                    int ccNumber = mapping.Value;
-                                    int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted);
-                                    SendControlChange(ccNumber, ccValue);
-                                    break;
-                                case Map.Pitchbend:
-                                    int pitchBendValue = MapToPitchBend(axisValue, mapping.IsInverted);
-                                    SendPitchBend(pitchBendValue);
-                                    break;
-                            }
-                        }
+                buttonStates[button] = false;
+            }
 
 
-                    }
+            //Task.Run(() =>
+            //{
+            //    Console.WriteLine("MIDI Processing Started.");
+            //    while (isProcessing)
+            //    {
+            //        SDL.SDL_GameControllerUpdate();
+            //        foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
+            //        {
+            //            bool isPressed = SDL.SDL_GameControllerGetButton(activeController, button) == 1;
+            //            List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
+            //            if (isPressed && (!buttonStates.ContainsKey(button) || !buttonStates[button]))
+            //            {
+            //                if (buttonMappings.Count > 0)
+            //                {
+
+            //                    foreach (Mapping mapping in buttonMappings)
+            //                    {
+            //                        SendNoteOn(mapping.Value, mapping.Velocity);
+            //                    }
+            //                }
+            //            }
+            //            else if (!isPressed && buttonStates.ContainsKey(button) && buttonStates[button])
+            //            {
+            //                // Note Off 처리
+            //                if (buttonMappings.Count > 0)
+            //                {
+
+            //                    foreach (Mapping mapping in buttonMappings)
+            //                    {
+            //                        SendNoteOff(mapping.Value);
+            //                    }
+            //                }
+            //            }
+
+            //            buttonStates[button] = isPressed;
+
+            //        }
+
+            //        foreach (SDL.SDL_GameControllerAxis axis in Enum.GetValues(typeof(SDL.SDL_GameControllerAxis)))
+            //        {
+            //            short axisValue = SDL.SDL_GameControllerGetAxis(activeController, axis);
+            //            List<Mapping> axisMappings = mappingManager.GetAxisMappings(axis);
+
+            //            foreach (Mapping mapping in axisMappings)
+            //            {
+            //                switch (mapping.Map)
+            //                {
+            //                    case Map.CC:
+            //                        int ccNumber = mapping.Value;
+            //                        int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted);
+            //                        SendControlChange(ccNumber, ccValue);
+            //                        break;
+            //                    case Map.Pitchbend:
+            //                        int pitchBendValue = MapToPitchBend(axisValue, mapping.IsInverted);
+            //                        SendPitchBend(pitchBendValue);
+            //                        break;
+            //                }
+            //            }
 
 
-                }
-            });
+            //        }
+
+
+            //    }
+            //});
         }
 
 
@@ -110,6 +130,72 @@ namespace Controllers2MIDI
 
             isProcessing = false;
         }
+
+        private void HandleButtonInput(SDL.SDL_GameControllerButton button)
+        {
+            if (!isProcessing)
+            {
+                return;
+            }
+
+            // 현재 버튼 상태 가져오기
+            bool isPressed = SDL.SDL_GameControllerGetButton(deviceManager.GetActiveController(), button) == 1;
+
+            // 버튼 상태가 변경된 경우만 처리
+            if (isPressed && (!buttonStates.ContainsKey(button) || !buttonStates[button]))
+            {
+                // Note On 처리
+                buttonStates[button] = true; // 상태 업데이트
+                List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
+
+                foreach (Mapping mapping in buttonMappings)
+                {
+                    SendNoteOn(mapping.Value, mapping.Velocity);
+                }
+            }
+            else if (!isPressed && buttonStates.ContainsKey(button) && buttonStates[button])
+            {
+                // Note Off 처리
+                buttonStates[button] = false; // 상태 업데이트
+                List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
+
+                foreach (Mapping mapping in buttonMappings)
+                {
+                    SendNoteOff(mapping.Value);
+                }
+            }
+
+        }
+
+        private void HandleAxisInput(SDL.SDL_GameControllerAxis axis, short value)
+        {
+            if (!isProcessing)
+            {
+                return;
+            }
+            Console.WriteLine($"MIDI: Axis {axis} moved with value {value}");
+            // MIDI 메시지 전송 로직
+            short axisValue = SDL.SDL_GameControllerGetAxis(deviceManager.GetActiveController(), axis);
+            List<Mapping> axisMappings = mappingManager.GetAxisMappings(axis);
+
+            foreach (Mapping mapping in axisMappings)
+            {
+                switch (mapping.Map)
+                {
+                    case Map.CC:
+                        int ccNumber = mapping.Value;
+                        int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted);
+                        SendControlChange(ccNumber, ccValue);
+                        break;
+                    case Map.Pitchbend:
+                        int pitchBendValue = MapToPitchBend(axisValue, mapping.IsInverted);
+                        SendPitchBend(pitchBendValue);
+                        break;
+                }
+            }
+        }
+
+
 
         private int MapToMIDIValue(short axisValue, bool invertDirection)
         {
@@ -161,15 +247,15 @@ namespace Controllers2MIDI
         // Control Change 메시지 전송
         public void SendControlChange(int controller, int value)
         {
-            if (ccStates.ContainsKey(controller) && ccStates[controller] == value)
-            {
-                // 이전 값과 동일하면 메시지를 보내지 않음
-                return;
-            }
 
-            ccStates[controller] = value; // CC 값 업데이트
-            midiOut.Send(MidiMessage.ChangeControl(controller, value, midiChannel).RawData);
-            Console.WriteLine($"Control Change: Controller={controller}, Value={value}, Channel={midiChannel}");
+
+            if (!ccStates.TryGetValue(controller, out var current) || current != value)
+            {
+                ccStates[controller] = value;
+                midiOut.Send(MidiMessage.ChangeControl(controller, value, midiChannel).RawData);
+                Console.WriteLine($"Control Change: Controller={controller}, Value={value}, Channel={midiChannel}");
+            }
+            
         }
 
         // Pitch Bend 메시지 전송

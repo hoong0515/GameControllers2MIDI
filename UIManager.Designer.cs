@@ -35,15 +35,17 @@
             toggleProcessingButton = new Button();
             loadMappingButton = new Button();
             saveMappingButton = new Button();
-            dataGridView1 = new DataGridView();
-            Input = new DataGridViewTextBoxColumn();
+            dataGridView = new DataGridView();
+            Input = new DataGridViewButtonColumn();
             Map = new DataGridViewComboBoxColumn();
             Value = new DataGridViewTextBoxColumn();
             isInverted = new DataGridViewCheckBoxColumn();
             Key = new DataGridViewComboBoxColumn();
             Octave = new DataGridViewComboBoxColumn();
             Velocity = new DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
+            deleteButton = new Button();
+            addButton = new Button();
+            ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
             SuspendLayout();
             // 
             // controllerDropdown
@@ -112,25 +114,30 @@
             saveMappingButton.UseVisualStyleBackColor = true;
             saveMappingButton.Click += SaveMappingButton_Click;
             // 
-            // dataGridView1
+            // dataGridView
             // 
-            dataGridView1.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView1.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity });
-            dataGridView1.Location = new Point(338, 65);
-            dataGridView1.Name = "dataGridView1";
-            dataGridView1.Size = new Size(450, 318);
-            dataGridView1.TabIndex = 7;
+            dataGridView.AllowUserToAddRows = false;
+            dataGridView.AllowUserToDeleteRows = false;
+            dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridView.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity });
+            dataGridView.Location = new Point(338, 65);
+            dataGridView.Name = "dataGridView";
+            dataGridView.Size = new Size(450, 318);
+            dataGridView.TabIndex = 7;
+            dataGridView.CellContentClick += dataGridView_CellContentClick;
+            dataGridView.CellEndEdit += dataGridView_CellEndEdit;
             // 
             // Input
             // 
             Input.HeaderText = "Input";
             Input.Name = "Input";
-            Input.ReadOnly = true;
+            Input.Resizable = DataGridViewTriState.True;
+            Input.SortMode = DataGridViewColumnSortMode.Automatic;
             // 
             // Map
             // 
             Map.HeaderText = "Map";
-            Map.Items.AddRange(new object[] { "None", "Note", "CC", "Pitchbend" });
+            Map.Items.AddRange(new object[] { "Note", "CC", "Pitchbend" });
             Map.Name = "Map";
             // 
             // Value
@@ -146,7 +153,7 @@
             // Key
             // 
             Key.HeaderText = "Key";
-            Key.Items.AddRange(new object[] { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" });
+            Key.Items.AddRange(new object[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" });
             Key.Name = "Key";
             // 
             // Octave
@@ -160,12 +167,34 @@
             Velocity.HeaderText = "Velocity";
             Velocity.Name = "Velocity";
             // 
+            // deleteButton
+            // 
+            deleteButton.Location = new Point(369, 389);
+            deleteButton.Name = "deleteButton";
+            deleteButton.Size = new Size(25, 25);
+            deleteButton.TabIndex = 8;
+            deleteButton.Text = "-";
+            deleteButton.UseVisualStyleBackColor = true;
+            deleteButton.Click += DeleteSelectedMapping;
+            // 
+            // addButton
+            // 
+            addButton.Location = new Point(338, 389);
+            addButton.Name = "addButton";
+            addButton.Size = new Size(25, 25);
+            addButton.TabIndex = 9;
+            addButton.Text = "+";
+            addButton.UseVisualStyleBackColor = true;
+            addButton.Click += AddNewMapping;
+            // 
             // UIManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
-            Controls.Add(dataGridView1);
+            Controls.Add(addButton);
+            Controls.Add(deleteButton);
+            Controls.Add(dataGridView);
             Controls.Add(saveMappingButton);
             Controls.Add(loadMappingButton);
             Controls.Add(toggleProcessingButton);
@@ -176,7 +205,7 @@
             Name = "UIManager";
             Text = "Controller2MIDI";
             Load += InitializeDropdowns;
-            ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)dataGridView).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -189,9 +218,11 @@
         private Label labelComboBoxMIDIDevice;
         private Button toggleProcessingButton;
         private Button saveMappingButton;
-        private DataGridView dataGridView1;
+        private DataGridView dataGridView;
         private Button loadMappingButton;
-        private DataGridViewTextBoxColumn Input;
+        private Button deleteButton;
+        private Button addButton;
+        private DataGridViewButtonColumn Input;
         private DataGridViewComboBoxColumn Map;
         private DataGridViewTextBoxColumn Value;
         private DataGridViewCheckBoxColumn isInverted;

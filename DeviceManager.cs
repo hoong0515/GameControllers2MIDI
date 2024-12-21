@@ -62,6 +62,25 @@ namespace Controllers2MIDI
             return controllerNames;
         }
 
+        public IEnumerable<string> GetControllerInputs()
+        {
+            var inputs = new List<string>();
+
+            // 버튼 입력
+            foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
+            {
+                inputs.Add(button.ToString());
+            }
+
+            // 축 입력
+            foreach (SDL.SDL_GameControllerAxis axis in Enum.GetValues(typeof(SDL.SDL_GameControllerAxis)))
+            {
+                inputs.Add(axis.ToString());
+            }
+
+            return inputs;
+        }
+
 
 
         public void SetActiveController(int index)

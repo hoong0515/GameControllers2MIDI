@@ -9,114 +9,138 @@ namespace Controllers2MIDI
     public class MappingManager
     {
         // 매핑 데이터 저장
-        private Dictionary<SDL.SDL_GameControllerButton, int> buttonToNoteMap = new Dictionary<SDL.SDL_GameControllerButton, int>();
-        private Dictionary<SDL.SDL_GameControllerAxis, (int ccOrNull, bool invertDirection)> axisToCCMap =
-            new Dictionary<SDL.SDL_GameControllerAxis, (int, bool)>();
-
-        private Dictionary<SDL.SDL_GameControllerAxis, bool> axisToPitchbend =
-            new Dictionary<SDL.SDL_GameControllerAxis, bool>();
+        // Mapping 클래스 사용
+        private List<Mapping> mappings = new List<Mapping>();
 
 
-
+        // 생성자
+        // 기본 버튼, Axis 매핑 추가
         public MappingManager()
         {
-            // 기본 매핑 설정
-            buttonToNoteMap[SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A] = 60; // Middle C
-            buttonToNoteMap[SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B] = 62; // D Note
-            axisToPitchbend[SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX] = true; // 오른쪽 X축을 Pitch Bend에 매핑
-            axisToCCMap[SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY] = (11, false); // Expression
-            axisToCCMap[SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX] = (1, false); // Modulation
+            AddButtonMapping(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A, note: 60, velocity: 100); // Middle C
+            AddButtonMapping(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B, note: 62, velocity: 100); // D Note
+            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX, isInverted: true, isPitchbend: true); // 오른쪽 X축을 Pitch Bend에 매핑
+            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY, cc: 11); // Expression
+            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, cc: 1); // Modulation
+
         }
 
-        // 버튼을 MIDI Note로 매핑
-        public int? GetMappedNote(SDL.SDL_GameControllerButton button)
+        // 버튼 매핑 반환
+        public List<Mapping> GetButtonMappings(SDL.SDL_GameControllerButton button)
         {
-            if (buttonToNoteMap.TryGetValue(button, out int note))
+            List<Mapping> buttonMappings = new List<Mapping>();
+            foreach (Mapping mapping in mappings)
             {
-                return note;
+                if (mapping.Input is SDL.SDL_GameControllerButton && (SDL.SDL_GameControllerButton)mapping.Input == button)
+                {
+                    buttonMappings.Add(mapping);
+                }
             }
-            return null; // 매핑되지 않은 버튼
+            return buttonMappings;
         }
 
-        // 축을 MIDI Control Change로 매핑
-        public (int? ccNumber, bool invertDirection)? GetMappedCC(SDL.SDL_GameControllerAxis axis)
+        // Axis 매핑 반환
+        public List<Mapping> GetAxisMappings(SDL.SDL_GameControllerAxis axis)
         {
-            if (axisToCCMap.TryGetValue(axis, out var mapping))
+            List<Mapping>? axisMappings = new List<Mapping>();
+            foreach (Mapping mapping in mappings)
             {
-                return (mapping.ccOrNull, mapping.invertDirection);
+                if (mapping.Input is SDL.SDL_GameControllerAxis && (SDL.SDL_GameControllerAxis)mapping.Input == axis)
+                {
+                    axisMappings.Add(mapping);
+                }
             }
-            return null;
+            
+            return axisMappings;
         }
 
+        // 버튼 매핑 추가
+        // 버튼, note, velocity(임의)를 받아서 매핑 추가
+        // 또는 버튼, key, oct, velocity를 받아서 매핑 추가
 
-
-        // 매핑 동적 설정 (외부 파일 또는 사용자 설정)
-        public void SetMapping(Dictionary<SDL.SDL_GameControllerButton, int> buttonMap, Dictionary<SDL.SDL_GameControllerAxis, (int, bool)> axisMap, Dictionary<SDL.SDL_GameControllerAxis, bool> pbMap)
+        public void AddButtonMapping(SDL.SDL_GameControllerButton button, int note = 60, int velocity = 100)
         {
-            buttonToNoteMap = buttonMap;
-            axisToCCMap = axisMap;
-            axisToPitchbend = pbMap;
+            if (note < 0 || note > 127 || velocity < 0 || velocity > 127)
+            {
+                throw new ArgumentOutOfRangeException("Note and velocity must be between 0 and 127.");
+            }
+            //buttonToNoteMap[button] = (note, velocity);
+            mappings.Add(new Mapping(button, Map.Note, note, velocity: 100));
         }
 
-        // 매핑 데이터 출력
-        public void PrintCurrentMapping()
+        public void AddButtonMapping(SDL.SDL_GameControllerButton button, Key key = Key.C, int oct = 4, int velocity = 100)
         {
-            Console.WriteLine("Button-to-Note Mapping:");
-            foreach (var mapping in buttonToNoteMap)
+            int note = ConvertTools.CalculateNoteFromKeyAndOctave(key, oct);
+            if (note < 0 || note > 127 || velocity < 0 || velocity > 127)
             {
-                Console.WriteLine($"Button {mapping.Key}: Note {mapping.Value}");
+                throw new ArgumentOutOfRangeException("Note and velocity must be between 0 and 127.");
             }
-
-            Console.WriteLine("Axis-to-CC Mapping:");
-            foreach (var mapping in axisToCCMap)
-            {
-                Console.WriteLine($"Axis {mapping.Key}: CC {mapping.Value}");
-            }
-
-            Console.WriteLine("Pitch Bend Axes:");
-            foreach (var axis in axisToPitchbend)
-            {
-                Console.WriteLine($"Axis {axis} is mapped to Pitch Bend");
-            }
+            //buttonToNoteMap[button] = (note, velocity);
+            mappings.Add(new Mapping(button, Map.Note, key: Key.C, oct: 4, velocity: 100));
         }
-        // 축이 Pitch Bend에 매핑되어 있는지 확인
-        public bool IsPitchBendAxis(SDL.SDL_GameControllerAxis axis, out bool invertDirection)
+
+
+        // Axis 매핑 추가
+        public void AddAxisMapping(SDL.SDL_GameControllerAxis axis, int cc = 1, bool isInverted = false, bool isPitchbend = false)
         {
-            if (axisToPitchbend.TryGetValue(axis, out invertDirection))
+            //axisToCCMap[axis] = (cc, isInverted);
+            if (isPitchbend)
             {
-                return true;
+                mappings.Add(new Mapping(axis, Map.Pitchbend, isInverted: isInverted));
             }
-            invertDirection = false;
-            return false;
+            else
+            {
+                mappings.Add(new Mapping(axis, Map.CC, value: cc, isInverted: isInverted));
+            }
         }
 
-        public class MappingData
+        // 매핑 추가
+        public void AddMapping(Mapping mapping)
         {
-            public Dictionary<string, int> ButtonToNote { get; set; } = new Dictionary<string, int>();
-            public Dictionary<string, int> AxisToCC { get; set; } = new Dictionary<string, int>();
-            public List<string> axisToPitchbend { get; set; } = new List<string>();
+            mappings.Add(mapping);
         }
 
+
+        // 매핑 삭제
+        // mapping 인스턴스를 받아서 삭제
+        // 또는 input과 value를 받아서 삭제
+        public void RemoveMapping(Mapping mapping)
+        {
+            mappings.Remove(mapping);
+        }
+        
+        public void RemoveMapping(dynamic input, int value)
+        {
+            foreach (var mapping in mappings)
+            {
+                if (mapping.Input == input && mapping.Value == value)
+                {
+                    mappings.Remove(mapping);
+                    break;
+                }
+            }
+        }
+
+        // 매핑을 JSON 파일로 저장
         public void SaveMappingToJson(string filePath)
         {
-            var mappingData = new
+
+            List<Dictionary<string, dynamic>> mappingData = new List<Dictionary<string, dynamic>>();
+            foreach (var mapping in mappings)
             {
-                buttonToNoteMap = buttonToNoteMap.ToDictionary(kvp => kvp.Key.ToString(), kvp => kvp.Value),
-                axisToCCMap = axisToCCMap.ToDictionary(
-                    kvp => kvp.Key.ToString(),
-                    kvp => new { ccNumber = kvp.Value.Item1, invertDirection = kvp.Value.Item2 }
-                ),
-                axisToPitchbend = axisToPitchbend.ToDictionary(
-                    kvp => kvp.Key.ToString(),
-                    kvp => kvp.Value
-                )
-            };
+                Dictionary<string, dynamic> mappingDict = mapping.ToDictionary();
+                mappingData.Add(mappingDict);
+            }
+
+
 
             string json = JsonConvert.SerializeObject(mappingData, Formatting.Indented);
             File.WriteAllText(filePath, json);
             Console.WriteLine($"Mapping saved to {filePath}");
         }
 
+
+        // JSON 파일로부터 매핑 로드
         public void LoadMappingFromJson(string filePath)
         {
             if (!File.Exists(filePath))
@@ -127,29 +151,27 @@ namespace Controllers2MIDI
 
             try
             {
+                mappings.Clear();
                 string json = File.ReadAllText(filePath);
                 var mappingData = JsonConvert.DeserializeObject<dynamic>(json);
-
-                // Button-to-Note 매핑
-                buttonToNoteMap = ((IDictionary<string, int>)mappingData.buttonToNoteMap)
-                    .ToDictionary(
-                        kvp => Enum.Parse<SDL.SDL_GameControllerButton>(kvp.Key),
-                        kvp => kvp.Value
-                    );
-
-                // Axis-to-CC 매핑
-                axisToCCMap = ((IDictionary<string, dynamic>)mappingData.axisToCCMap)
-                    .ToDictionary(
-                        kvp => Enum.Parse<SDL.SDL_GameControllerAxis>(kvp.Key),
-                        kvp => ((int)kvp.Value.ccNumber, (bool)kvp.Value.invertDirection)
-                    );
-
-                // Axis-to-Pitchbend 매핑
-                axisToPitchbend = ((IDictionary<string, bool>)mappingData.axisToPitchbend)
-                    .ToDictionary(
-                        kvp => Enum.Parse<SDL.SDL_GameControllerAxis>(kvp.Key),
-                        kvp => kvp.Value
-                    );
+                foreach (var mappingDict in mappingData)
+                {
+                    if (mappingDict["inputType"] == 0)
+                    {
+                        AddButtonMapping((SDL.SDL_GameControllerButton)mappingDict["input"], note: (int)mappingDict["value"], velocity: (int)mappingDict["velocity"]);
+                    }
+                    else if (mappingDict["inputType"] == 1)
+                    {
+                        if (mappingDict["map"] == 1)
+                        {
+                            AddAxisMapping((SDL.SDL_GameControllerAxis)mappingDict["input"], cc: (int)mappingDict["value"], isInverted: (bool)mappingDict["isInverted"]);
+                        }
+                        else if (mappingDict["map"] == 2)
+                        {
+                            AddAxisMapping((SDL.SDL_GameControllerAxis)mappingDict["input"], isInverted: (bool)mappingDict["isInverted"], isPitchbend: true);
+                        }
+                    }
+                }
 
                 Console.WriteLine($"Mapping loaded successfully from {filePath}");
             }
@@ -158,6 +180,8 @@ namespace Controllers2MIDI
                 Console.WriteLine($"Error loading mapping: {ex.Message}");
             }
         }
+
+
 
         //buttonToNoteMap = ((IDictionary<string, int>)mappingData.ButtonToNote)
         //    .ToDictionary(kvp => Enum.Parse<SDL.SDL_GameControllerButton>(kvp.Key), kvp => kvp.Value);

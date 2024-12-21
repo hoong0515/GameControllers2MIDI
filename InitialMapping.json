@@ -1,20 +1,52 @@
-{
-    "buttonToNoteMap": {
-      "SDL_CONTROLLER_BUTTON_A": 60,
-      "SDL_CONTROLLER_BUTTON_B": 62
-    },
-    "axisToCCMap": {
-      "SDL_CONTROLLER_AXIS_LEFTX": {
-        "ccNumber": 1,
-        "invertDirection": false
-      },
-      "SDL_CONTROLLER_AXIS_LEFTY": {
-        "ccNumber": 11,
-        "invertDirection": false
-      }
-    },
-    "axisToPitchbend": {
-      "SDL_CONTROLLER_AXIS_RIGHTY": false
-    }
+[
+  {
+    "inputType": 0,
+    "input": 0,
+    "map": 0,
+    "value": 60,
+    "isInverted": false,
+    "key": 0,
+    "oct": 4,
+    "velocity": 100
+  },
+  {
+    "inputType": 0,
+    "input": 1,
+    "map": 0,
+    "value": 62,
+    "isInverted": false,
+    "key": 2,
+    "oct": 4,
+    "velocity": 100
+  },
+  {
+    "inputType": 1,
+    "input": 2,
+    "map": 1,
+    "value": 1,
+    "isInverted": true,
+    "key": 0,
+    "oct": 4,
+    "velocity": 100
+  },
+  {
+    "inputType": 1,
+    "input": 1,
+    "map": 1,
+    "value": 11,
+    "isInverted": false,
+    "key": 0,
+    "oct": 4,
+    "velocity": 100
+  },
+  {
+    "inputType": 1,
+    "input": 0,
+    "map": 1,
+    "value": 1,
+    "isInverted": false,
+    "key": 0,
+    "oct": 4,
+    "velocity": 100
   }
-  
+]

@@ -41,21 +41,28 @@ namespace Controllers2MIDI
                     foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
                     {
                         bool isPressed = SDL.SDL_GameControllerGetButton(activeController, button) == 1;
+                        List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
                         if (isPressed && (!buttonStates.ContainsKey(button) || !buttonStates[button]))
                         {
-                            int? note = mappingManager.GetMappedNote(button);
-                            if (note.HasValue)
+                            if (buttonMappings.Count > 0)
                             {
-                                SendNoteOn(note.Value, 127);
+
+                                foreach (Mapping mapping in buttonMappings)
+                                {
+                                    SendNoteOn(mapping.Value, mapping.Velocity);
+                                }
                             }
                         }
                         else if (!isPressed && buttonStates.ContainsKey(button) && buttonStates[button])
                         {
                             // Note Off 처리
-                            int? note = mappingManager.GetMappedNote(button);
-                            if (note.HasValue)
+                            if (buttonMappings.Count > 0)
                             {
-                                SendNoteOff(note.Value);
+
+                                foreach (Mapping mapping in buttonMappings)
+                                {
+                                    SendNoteOff(mapping.Value);
+                                }
                             }
                         }
 
@@ -66,23 +73,25 @@ namespace Controllers2MIDI
                     foreach (SDL.SDL_GameControllerAxis axis in Enum.GetValues(typeof(SDL.SDL_GameControllerAxis)))
                     {
                         short axisValue = SDL.SDL_GameControllerGetAxis(activeController, axis);
+                        List<Mapping> axisMappings = mappingManager.GetAxisMappings(axis);
 
-                        if (mappingManager.IsPitchBendAxis(axis, out bool inverDirection))
+                        foreach (Mapping mapping in axisMappings)
                         {
-                            // Pitch Bend로 매핑된 축 처리
-                            int pitchBendValue = MapToPitchBend(axisValue, inverDirection);
-                            SendPitchBend(pitchBendValue);
-                        }
-                        else
-                        {
-                            var ccMapping = mappingManager.GetMappedCC(axis);
-                            if (ccMapping.HasValue)
+                            switch (mapping.Map)
                             {
-                                var (ccNumber, ccInvertDirection) = ccMapping.Value;
-                                int ccValue = MapToMIDIValue(axisValue, ccInvertDirection);
-                                SendControlChange(ccNumber.Value, ccValue);
+                                case Map.CC:
+                                    int ccNumber = mapping.Value;
+                                    int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted);
+                                    SendControlChange(ccNumber, ccValue);
+                                    break;
+                                case Map.Pitchbend:
+                                    int pitchBendValue = MapToPitchBend(axisValue, mapping.IsInverted);
+                                    SendPitchBend(pitchBendValue);
+                                    break;
                             }
                         }
+
+
                     }
 
 
@@ -118,8 +127,8 @@ namespace Controllers2MIDI
             }
 
             return axisValue < 0
-                ? (((axisValue * 8192) / 32768) + 8192) * -1
-                : (((axisValue * 8191) / 32767) - 8191) * -1;
+                ? ((axisValue * 8192 / 32768) + 8192) * -1
+                : ((axisValue * 8191 / 32767) - 8191) * -1;
         }
 
         public void SendNoteOn(int note, int velocity)

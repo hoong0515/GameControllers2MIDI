@@ -42,7 +42,7 @@
         }
 
 
-        private void LoadMappingButton_Clock(object sender, EventArgs e)
+        private void LoadMappingButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog
             {

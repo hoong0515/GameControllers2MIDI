@@ -15,6 +15,9 @@ namespace Controllers2MIDI
         private bool isProcessing = false;
         private bool isInputCaptureActive = false;
         private int currentRowIndex;
+        private static HashSet<string> shownControllerWarnings = new HashSet<string>(); // 이미 경고가 표시된 컨트롤러 이름
+        private static HashSet<string> shownMidiWarnings = new HashSet<string>(); // 이미 경고가 표시된 MIDI 장치 이름
+
 
         public UIManager(MappingManager mappingManager, DeviceManager deviceManager, MidiManager midiManager)
         {
@@ -411,6 +414,72 @@ namespace Controllers2MIDI
             LoadMappingsIntoGrid();
         }
 
+        public void UpdateControllerDropdown(List<string> controllers)
+        {
+            if (controllerDropdown.InvokeRequired)
+            {
+                controllerDropdown.Invoke(new Action(() => UpdateControllerDropdown(controllers)));
+            }
+            else
+            {
+                controllerDropdown.Items.Clear();
+                controllerDropdown.Items.AddRange(controllers.ToArray());
+            }
+        }
+
+        public void ShowControllerDisconnectedWarning(string controllerName)
+        {
+            if (!shownControllerWarnings.Contains(controllerName))
+            {
+                // 경고 창 표시
+                MessageBox.Show($"Controller '{controllerName}' has been disconnected.",
+                                "Controller Disconnected",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+
+                // 경고 표시 상태 저장
+                shownControllerWarnings.Add(controllerName);
+            }
+        }
+
+        public static void ResetControllerWarnings()
+        {
+            shownControllerWarnings.Clear(); // 경고 상태 초기화
+        }
+
+        public void UpdateMidiDropdown(List<string> midiDevices)
+        {
+            if (midiDeviceDropdown.InvokeRequired)
+            {
+                midiDeviceDropdown.Invoke(new Action(() => UpdateMidiDropdown(midiDevices)));
+            }
+            else
+            {
+                midiDeviceDropdown.Items.Clear();
+                midiDeviceDropdown.Items.AddRange(midiDevices.ToArray());
+            }
+        }
+
+        public void ShowMidiDeviceDisconnectedWarning(string deviceName)
+        {
+            if (!shownMidiWarnings.Contains(deviceName))
+            {
+                // 경고 창 표시
+                MessageBox.Show($"MIDI Device '{deviceName}' has been disconnected.",
+                                "MIDI Device Disconnected",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Warning);
+
+                // 경고 표시 상태 저장
+                shownMidiWarnings.Add(deviceName);
+            }
+        }
+        public static void ResetMidiWarnings()
+        {
+            shownMidiWarnings.Clear(); // 경고 상태 초기화
+        }
+
+
         //private void HandleButtonInput(SDL.SDL_GameControllerButton button)
         //{
         //    if (!isInputCaptureActive) return;
@@ -421,7 +490,7 @@ namespace Controllers2MIDI
         //        Console.WriteLine($"UI: Button {button} pressed for input capture");
         //        ApplyInputToMapping(button, currentRowIndex);
         //        isInputCaptureActive = false; // 입력 캡처 종료
-                
+
         //    }));
         //}
 

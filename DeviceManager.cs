@@ -1,6 +1,7 @@
 ﻿using SDL2;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Controllers2MIDI
@@ -9,12 +10,16 @@ namespace Controllers2MIDI
     {
         private Dictionary<int, IntPtr> connectedControllers = new Dictionary<int, IntPtr>();
         private IntPtr activeController = IntPtr.Zero;
-        private bool isProcessing = false;
-        
+        private int? activeControllerIndex = null;
+        private string activeControllerName; // 활성화된 컨트롤러의 이름
+
+
 
         public event Action<SDL.SDL_GameControllerButton> ButtonPressed;
         public event Action<SDL.SDL_GameControllerButton> ButtonReleased;
         public event Action<SDL.SDL_GameControllerAxis, short> AxisMoved;
+        public event Action<List<string>> ControllerListUpdated;
+        public event Action<string> ControllerDisconnected;
 
         public DeviceManager()
         {
@@ -95,10 +100,60 @@ namespace Controllers2MIDI
             }
         }
 
-        public void SetActiveController(IntPtr controller)
+
+        public void UpdateControllerList()
         {
-            activeController = controller;
+            var currentControllers = new Dictionary<int, IntPtr>();
+            var currentNames = new List<string>();
+
+            for (int i = 0; i < SDL.SDL_NumJoysticks(); i++)
+            {
+                if (SDL.SDL_IsGameController(i) == SDL.SDL_bool.SDL_TRUE)
+                {
+                    IntPtr controllerHandle = SDL.SDL_GameControllerOpen(i);
+                    if (controllerHandle != IntPtr.Zero)
+                    {
+                        currentControllers[i] = controllerHandle;
+                        currentNames.Add(SDL.SDL_GameControllerName(controllerHandle));
+                    }
+                }
+            }
+
+            // 새로 추가되거나 제거된 컨트롤러 확인
+            if (!currentControllers.Keys.SequenceEqual(connectedControllers.Keys))
+            {
+                // 기존 컨트롤러 닫기
+                foreach (var controller in connectedControllers.Values)
+                {
+                    SDL.SDL_GameControllerClose(controller);
+                }
+
+                // 새로운 상태로 갱신
+                connectedControllers = currentControllers;
+
+                UIManager.ResetControllerWarnings();
+
+                // 이벤트 트리거
+                ControllerListUpdated?.Invoke(currentNames);
+            }
         }
+
+
+        public void CheckActiveController()
+        {
+            if (activeControllerIndex.HasValue && !connectedControllers.ContainsKey(activeControllerIndex.Value))
+            {
+                // 제거된 컨트롤러의 이름 출력
+                string disconnectedControllerName = activeControllerName ?? "Unknown Controller";
+
+                ControllerDisconnected?.Invoke(disconnectedControllerName);
+
+                // 활성화 상태 초기화
+                activeControllerIndex = null;
+                activeControllerName = null;
+            }
+        }
+
 
 
         public List<string> GetControllerNames()
@@ -143,7 +198,10 @@ namespace Controllers2MIDI
             if (index >= 0 && index < connectedControllers.Count)
             {
                 activeController = connectedControllers[index];
+                activeControllerIndex = index;
+                activeControllerName = SDL.SDL_GameControllerName(activeController);
                 Console.WriteLine($"Active Controller Set: {SDL.SDL_GameControllerName(activeController)}");
+
             }
             else
             {

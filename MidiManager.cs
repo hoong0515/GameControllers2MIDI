@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.Midi;
@@ -18,6 +19,14 @@ namespace Controllers2MIDI
         private Dictionary<int, int> ccStates = new Dictionary<int, int>(); // CC 값
         private Dictionary<SDL.SDL_GameControllerButton, bool> buttonStates = new Dictionary<SDL.SDL_GameControllerButton, bool>(); // 버튼 상태
         private int lastPitchBendValue = 0; // Pitch Bend 값 (초기값은 중앙)
+
+        public event Action<List<string>> MidiDeviceListUpdated;
+        public event Action<string> MidiDeviceDisconnected;
+
+        private Dictionary<int, string> connectedMidiDevices = new Dictionary<int, string>();
+        private int? activeMidiDeviceIndex; // 활성 MIDI 장치의 인덱스
+
+
 
         public MidiManager()
         {
@@ -50,73 +59,6 @@ namespace Controllers2MIDI
             {
                 buttonStates[button] = false;
             }
-
-
-            //Task.Run(() =>
-            //{
-            //    Console.WriteLine("MIDI Processing Started.");
-            //    while (isProcessing)
-            //    {
-            //        SDL.SDL_GameControllerUpdate();
-            //        foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
-            //        {
-            //            bool isPressed = SDL.SDL_GameControllerGetButton(activeController, button) == 1;
-            //            List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
-            //            if (isPressed && (!buttonStates.ContainsKey(button) || !buttonStates[button]))
-            //            {
-            //                if (buttonMappings.Count > 0)
-            //                {
-
-            //                    foreach (Mapping mapping in buttonMappings)
-            //                    {
-            //                        SendNoteOn(mapping.Value, mapping.Velocity);
-            //                    }
-            //                }
-            //            }
-            //            else if (!isPressed && buttonStates.ContainsKey(button) && buttonStates[button])
-            //            {
-            //                // Note Off 처리
-            //                if (buttonMappings.Count > 0)
-            //                {
-
-            //                    foreach (Mapping mapping in buttonMappings)
-            //                    {
-            //                        SendNoteOff(mapping.Value);
-            //                    }
-            //                }
-            //            }
-
-            //            buttonStates[button] = isPressed;
-
-            //        }
-
-            //        foreach (SDL.SDL_GameControllerAxis axis in Enum.GetValues(typeof(SDL.SDL_GameControllerAxis)))
-            //        {
-            //            short axisValue = SDL.SDL_GameControllerGetAxis(activeController, axis);
-            //            List<Mapping> axisMappings = mappingManager.GetAxisMappings(axis);
-
-            //            foreach (Mapping mapping in axisMappings)
-            //            {
-            //                switch (mapping.Map)
-            //                {
-            //                    case Map.CC:
-            //                        int ccNumber = mapping.Value;
-            //                        int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted);
-            //                        SendControlChange(ccNumber, ccValue);
-            //                        break;
-            //                    case Map.Pitchbend:
-            //                        int pitchBendValue = MapToPitchBend(axisValue, mapping.IsInverted);
-            //                        SendPitchBend(pitchBendValue);
-            //                        break;
-            //                }
-            //            }
-
-
-            //        }
-
-
-            //    }
-            //});
         }
 
 
@@ -300,8 +242,66 @@ namespace Controllers2MIDI
 
             // 새로운 MIDI 장치 열기
             midiOut = new MidiOut(deviceIndex);
+            activeMidiDeviceIndex = deviceIndex;
             Console.WriteLine($"Connected to MIDI Device: {MidiOut.DeviceInfo(deviceIndex).ProductName}");
         }
+
+        public void UpdateMidiDeviceList()
+        {
+            var currentDevices = new Dictionary<int, string>();
+
+            // 현재 연결된 MIDI 장치 가져오기
+            for (int i = 0; i < MidiOut.NumberOfDevices; i++)
+            {
+                try
+                {
+                    currentDevices[i] = MidiOut.DeviceInfo(i).ProductName;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error retrieving MIDI device info: {ex.Message}");
+                }
+            }
+
+            // 변경 사항 감지
+            bool devicesChanged = !currentDevices.SequenceEqual(connectedMidiDevices);
+
+            // 추가된 장치 감지
+            var addedDevices = currentDevices.Keys.Except(connectedMidiDevices.Keys)
+                .Select(key => currentDevices[key]).ToList();
+
+            // 제거된 장치 감지
+            var removedDevices = connectedMidiDevices.Keys.Except(currentDevices.Keys)
+                .Select(key => connectedMidiDevices[key]).ToList();
+
+            // 목록 갱신
+            connectedMidiDevices = currentDevices;
+
+            // 이벤트 트리거
+            if (devicesChanged)
+            {
+                MidiDeviceListUpdated?.Invoke(currentDevices.Values.ToList());
+
+                foreach (var removedDevice in removedDevices)
+                {
+                    MidiDeviceDisconnected?.Invoke(removedDevice);
+                }
+            }
+        }
+        public void CheckActiveMidiDevice()
+        {
+            // 활성화된 MIDI 장치가 제거되었는지 확인
+            if (activeMidiDeviceIndex.HasValue && !connectedMidiDevices.ContainsKey(activeMidiDeviceIndex.Value))
+            {
+                string disconnectedDeviceName = connectedMidiDevices.GetValueOrDefault(activeMidiDeviceIndex.Value, "Unknown MIDI Device");
+                MidiDeviceDisconnected?.Invoke(disconnectedDeviceName);
+
+                // 활성 상태 초기화
+                activeMidiDeviceIndex = null;
+            }
+        }
+
+
 
 
         public void Close()

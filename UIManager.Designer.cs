@@ -47,6 +47,7 @@
             Key = new DataGridViewComboBoxColumn();
             Octave = new DataGridViewComboBoxColumn();
             Velocity = new DataGridViewTextBoxColumn();
+            isUsingAbs = new DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -89,7 +90,7 @@
             // toggleProcessingButton
             // 
             toggleProcessingButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            toggleProcessingButton.Location = new Point(944, 479);
+            toggleProcessingButton.Location = new Point(1002, 520);
             toggleProcessingButton.Name = "toggleProcessingButton";
             toggleProcessingButton.Size = new Size(190, 49);
             toggleProcessingButton.TabIndex = 4;
@@ -123,11 +124,11 @@
             dataGridView.AllowUserToDeleteRows = false;
             dataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity });
+            dataGridView.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity, isUsingAbs });
             dataGridView.Location = new Point(338, 65);
             dataGridView.MultiSelect = false;
             dataGridView.Name = "dataGridView";
-            dataGridView.Size = new Size(796, 408);
+            dataGridView.Size = new Size(854, 449);
             dataGridView.TabIndex = 7;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
             dataGridView.CellEndEdit += dataGridView_CellEndEdit;
@@ -135,7 +136,7 @@
             // deleteButton
             // 
             deleteButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            deleteButton.Location = new Point(369, 479);
+            deleteButton.Location = new Point(369, 520);
             deleteButton.Name = "deleteButton";
             deleteButton.Size = new Size(25, 25);
             deleteButton.TabIndex = 8;
@@ -146,7 +147,7 @@
             // addButton
             // 
             addButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            addButton.Location = new Point(338, 479);
+            addButton.Location = new Point(338, 520);
             addButton.Name = "addButton";
             addButton.Size = new Size(25, 25);
             addButton.TabIndex = 9;
@@ -214,11 +215,16 @@
             Velocity.Name = "Velocity";
             Velocity.SortMode = DataGridViewColumnSortMode.NotSortable;
             // 
+            // isUsingAbs
+            // 
+            isUsingAbs.HeaderText = "isUsingAbs";
+            isUsingAbs.Name = "isUsingAbs";
+            // 
             // UIManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1146, 540);
+            ClientSize = new Size(1204, 581);
             Controls.Add(midiChanelDropdownLabel);
             Controls.Add(midiChannelDropdown);
             Controls.Add(addButton);
@@ -260,5 +266,6 @@
         private DataGridViewComboBoxColumn Key;
         private DataGridViewComboBoxColumn Octave;
         private DataGridViewTextBoxColumn Velocity;
+        private DataGridViewCheckBoxColumn isUsingAbs;
     }
 }

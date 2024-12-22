@@ -220,7 +220,8 @@ namespace GameControllers2MIDI
                     dictionary["isInverted"],
                     dictionary["key"].ToString(),
                     dictionary["oct"].ToString(),
-                    dictionary["velocity"]
+                    dictionary["velocity"],
+                    dictionary["isUsingAbs"]
                 );
             }
         }
@@ -252,6 +253,7 @@ namespace GameControllers2MIDI
             
             mapping.IsInverted = (bool)row.Cells["isInverted"].Value;
             mapping.Velocity = int.Parse(row.Cells["Velocity"].Value.ToString());
+            mapping.IsUsingAbs = (bool)row.Cells["isUsingAbs"].Value;
 
 
 

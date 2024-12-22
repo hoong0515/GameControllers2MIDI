@@ -133,7 +133,23 @@ namespace Controllers2MIDI
 
         public void ModifyMapping(Mapping mapping, SDL.SDL_GameControllerButton button)
         {
-            if (mapping.Input == button)
+            if (mapping.InputType == InputType.Axis)
+            {
+                Mapping.usingInputs[mapping.Input]--;
+                if (Mapping.usingInputs[mapping.Input] < 0)
+                {
+                    Mapping.usingInputs.Remove(mapping.Input);
+                }
+                if (!Mapping.usingInputs.ContainsKey(button))
+                {
+                    Mapping.usingInputs[button] = 0;
+                }
+                else
+                {
+                    Mapping.usingInputs[button]++;
+                }
+            }
+            else if (mapping.Input == button)
             {
                 return;
             }
@@ -167,7 +183,24 @@ namespace Controllers2MIDI
 
         public void ModifyMapping(Mapping mapping, SDL.SDL_GameControllerAxis axis)
         {
-            if (mapping.Input == axis)
+            if (mapping.InputType == InputType.Button)
+            {
+                Mapping.usingInputs[mapping.Input]--;
+                if (Mapping.usingInputs[mapping.Input] < 0)
+                {
+                    Mapping.usingInputs.Remove(mapping.Input);
+                }
+
+                if (!Mapping.usingInputs.ContainsKey(axis))
+                {
+                    Mapping.usingInputs[axis] = 0;
+                }
+                else
+                {
+                    Mapping.usingInputs[axis]++;
+                }
+            }
+            else if (mapping.Input == axis)
             {
                 return;
             }

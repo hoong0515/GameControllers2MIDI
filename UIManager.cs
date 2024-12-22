@@ -229,15 +229,6 @@ namespace Controllers2MIDI
             }
         }
 
-        private void EnsureComboBoxItems(string columnName, string value)
-        {
-            var comboBoxColumn = dataGridView.Columns[columnName] as DataGridViewComboBoxColumn;
-            if (comboBoxColumn != null && !comboBoxColumn.Items.Contains(value))
-            {
-                comboBoxColumn.Items.Add(value); // 값이 없는 경우 추가
-            }
-        }
-
 
 
         private void dataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
@@ -248,7 +239,7 @@ namespace Controllers2MIDI
             var row = dataGridView.Rows[rowIndex];
             var mapping = mappingManager.GetAllMappings()[rowIndex];
 
-            string input = row.Cells["Input"].Value.ToString();
+            string input = "SDL_CONTROLLER_" + row.Cells["Input"].Value.ToString();
 
 
             // 데이터 유효성 검사
@@ -256,14 +247,14 @@ namespace Controllers2MIDI
 
             // dataGridView의 데이터를 Mapping 객체에 반영
 
-            if (Enum.TryParse("SDL_CONTROLLER_" + input, out SDL.SDL_GameControllerButton button))
-            {
-                mappingManager.ModifyMapping(mapping, button);
-            }
-            else if (Enum.TryParse("SDL_CONTROLLER_" + input, out SDL.SDL_GameControllerAxis axis))
-            {
-                mappingManager.ModifyMapping(mapping, axis);
-            }
+            //if (Enum.TryParse(input, out SDL.SDL_GameControllerButton button))
+            //{
+            //    mappingManager.ModifyMapping(mapping, button);
+            //}
+            //else if (Enum.TryParse(input, out SDL.SDL_GameControllerAxis axis))
+            //{
+            //    mappingManager.ModifyMapping(mapping, axis);
+            //}
 
 
             mapping.ModifyNoteProperty(int.Parse(row.Cells["Value"].Value.ToString()), Enum.Parse<Key>(row.Cells["Key"].Value.ToString()), int.Parse(row.Cells["Octave"].Value.ToString()));

@@ -275,7 +275,7 @@ namespace GameControllers2MIDI
                     {
                         if (mappingDict["map"] == 1)
                         {
-                            AddAxisMapping((SDL.SDL_GameControllerAxis)mappingDict["input"], cc: (int)mappingDict["value"], isInverted: (bool)mappingDict["isInverted"]);
+                            AddAxisMapping((SDL.SDL_GameControllerAxis)mappingDict["input"], cc: (int)mappingDict["value"], isInverted: (bool)mappingDict["isInverted"], isUsingAbs: (bool)mappingDict["isUsingAbs"]);
                         }
                         else if (mappingDict["map"] == 2)
                         {

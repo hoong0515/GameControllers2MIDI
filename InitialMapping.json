@@ -7,7 +7,8 @@
     "isInverted": false,
     "key": 0,
     "oct": 4,
-    "velocity": 100
+    "velocity": 100,
+    "isUsingAbs": false
   },
   {
     "inputType": 0,
@@ -17,17 +18,19 @@
     "isInverted": false,
     "key": 2,
     "oct": 4,
-    "velocity": 100
+    "velocity": 100,
+    "isUsingAbs": false
   },
   {
     "inputType": 1,
     "input": 2,
-    "map": 1,
+    "map": 2,
     "value": 1,
     "isInverted": true,
     "key": 0,
     "oct": 4,
-    "velocity": 100
+    "velocity": 100,
+    "isUsingAbs": false
   },
   {
     "inputType": 1,
@@ -37,7 +40,8 @@
     "isInverted": false,
     "key": 0,
     "oct": 4,
-    "velocity": 100
+    "velocity": 100,
+    "isUsingAbs": true
   },
   {
     "inputType": 1,
@@ -47,6 +51,7 @@
     "isInverted": false,
     "key": 0,
     "oct": 4,
-    "velocity": 100
+    "velocity": 100,
+    "isUsingAbs": true
   }
 ]

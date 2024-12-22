@@ -234,6 +234,13 @@ namespace Controllers2MIDI
             return deviceNames;
         }
 
+        public int GetMidiChannel()
+        {
+            return midiChannel;
+        }
+
+
+
         public void SetActiveMidiDevice(int deviceIndex)
         {
             if (deviceIndex < 0 || deviceIndex >= MidiOut.NumberOfDevices)
@@ -249,6 +256,18 @@ namespace Controllers2MIDI
             activeMidiDeviceIndex = deviceIndex;
             Console.WriteLine($"Connected to MIDI Device: {MidiOut.DeviceInfo(deviceIndex).ProductName}");
         }
+
+
+        public void SetMidiChannel(int channel)
+        {
+            if (channel < 1 || channel > 16)
+            {
+                throw new ArgumentOutOfRangeException(nameof(channel), "MIDI channel must be between 1 and 16.");
+            }
+
+            midiChannel = channel;
+        }
+
 
         //public void UpdateMidiDeviceList()
         //{

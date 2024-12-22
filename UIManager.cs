@@ -197,6 +197,10 @@ namespace Controllers2MIDI
             {
                 midiDeviceDropdown.SelectedIndex = 0; // 기본 선택
             }
+
+            // MIDI 채널 드롭다운 초기화
+            midiChannelDropdown.Items.AddRange(Enumerable.Range(1, 16).Select(i => i.ToString()).ToArray());
+            midiChannelDropdown.SelectedIndex = midiManager.GetMidiChannel() - 1; // 기본 선택
         }
 
         private void LoadMappingsIntoGrid()
@@ -477,6 +481,16 @@ namespace Controllers2MIDI
         public static void ResetMidiWarnings()
         {
             shownMidiWarnings.Clear(); // 경고 상태 초기화
+        }
+
+
+        private void MidiChannelDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (int.TryParse(midiChannelDropdown.SelectedItem.ToString(), out int selectedChannel))
+            {
+                midiManager.SetMidiChannel(selectedChannel);
+                Console.WriteLine($"MIDI channel set to {selectedChannel}");
+            }
         }
 
 

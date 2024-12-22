@@ -45,6 +45,8 @@
             Velocity = new DataGridViewTextBoxColumn();
             deleteButton = new Button();
             addButton = new Button();
+            midiChannelDropdown = new ComboBox();
+            midiChanelDropdownLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -86,7 +88,8 @@
             // 
             // toggleProcessingButton
             // 
-            toggleProcessingButton.Location = new Point(598, 389);
+            toggleProcessingButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            toggleProcessingButton.Location = new Point(944, 479);
             toggleProcessingButton.Name = "toggleProcessingButton";
             toggleProcessingButton.Size = new Size(190, 49);
             toggleProcessingButton.TabIndex = 4;
@@ -118,11 +121,12 @@
             // 
             dataGridView.AllowUserToAddRows = false;
             dataGridView.AllowUserToDeleteRows = false;
+            dataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity });
             dataGridView.Location = new Point(338, 65);
             dataGridView.Name = "dataGridView";
-            dataGridView.Size = new Size(450, 318);
+            dataGridView.Size = new Size(796, 408);
             dataGridView.TabIndex = 7;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
             dataGridView.CellEndEdit += dataGridView_CellEndEdit;
@@ -169,7 +173,8 @@
             // 
             // deleteButton
             // 
-            deleteButton.Location = new Point(369, 389);
+            deleteButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            deleteButton.Location = new Point(369, 479);
             deleteButton.Name = "deleteButton";
             deleteButton.Size = new Size(25, 25);
             deleteButton.TabIndex = 8;
@@ -179,7 +184,8 @@
             // 
             // addButton
             // 
-            addButton.Location = new Point(338, 389);
+            addButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            addButton.Location = new Point(338, 479);
             addButton.Name = "addButton";
             addButton.Size = new Size(25, 25);
             addButton.TabIndex = 9;
@@ -187,11 +193,32 @@
             addButton.UseVisualStyleBackColor = true;
             addButton.Click += AddNewMapping;
             // 
+            // midiChannelDropdown
+            // 
+            midiChannelDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            midiChannelDropdown.FormattingEnabled = true;
+            midiChannelDropdown.Location = new Point(175, 133);
+            midiChannelDropdown.Name = "midiChannelDropdown";
+            midiChannelDropdown.Size = new Size(73, 23);
+            midiChannelDropdown.TabIndex = 10;
+            midiChannelDropdown.SelectedIndexChanged += MidiChannelDropdown_SelectedIndexChanged;
+            // 
+            // midiChanelDropdownLabel
+            // 
+            midiChanelDropdownLabel.AutoSize = true;
+            midiChanelDropdownLabel.Location = new Point(175, 115);
+            midiChanelDropdownLabel.Name = "midiChanelDropdownLabel";
+            midiChanelDropdownLabel.Size = new Size(81, 15);
+            midiChanelDropdownLabel.TabIndex = 11;
+            midiChanelDropdownLabel.Text = "MIDI Channel";
+            // 
             // UIManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(1146, 540);
+            Controls.Add(midiChanelDropdownLabel);
+            Controls.Add(midiChannelDropdown);
             Controls.Add(addButton);
             Controls.Add(deleteButton);
             Controls.Add(dataGridView);
@@ -229,5 +256,7 @@
         private DataGridViewComboBoxColumn Key;
         private DataGridViewComboBoxColumn Octave;
         private DataGridViewTextBoxColumn Velocity;
+        private ComboBox midiChannelDropdown;
+        private Label midiChanelDropdownLabel;
     }
 }

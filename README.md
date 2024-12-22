@@ -28,6 +28,7 @@ Controllers2MIDI is a Windows application that enables game controllers (e.g., X
 - .NET Framework 4.7.2 or later
 - A compatible game controller (e.g., Xbox, Nintendo Switch Pro, DualShock 4, or DualSense)
 - MIDI-enabled software or hardware to receive the output
+- (Windows, Optional) Virtual MIDI driver e.g. [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html), [LoopBe1](https://www.nerds.de/en/loopbe1.html) (to send MIDI messages to DAW)
 
 ## Usage
 1. **Connect Your Devices**:
@@ -60,5 +61,5 @@ Feel free to submit issues or contribute to the project via pull requests on [Gi
 This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Contact
-For support or inquiries, contact [your email here] or create an issue on the GitHub repository.
+For support or inquiries, contact [hoong0515@naver.com] or create an issue on the GitHub repository.
 

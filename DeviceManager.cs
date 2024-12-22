@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace Controllers2MIDI
+namespace GameControllers2MIDI
 
 {public class DeviceManager
     {

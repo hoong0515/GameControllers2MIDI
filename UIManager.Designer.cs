@@ -1,4 +1,4 @@
-﻿namespace Controllers2MIDI
+﻿namespace GameControllers2MIDI
 {
     partial class UIManager
     {

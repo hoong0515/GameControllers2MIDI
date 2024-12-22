@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using SDL2;
 
 
-namespace Controllers2MIDI
+namespace GameControllers2MIDI
 {
     class Program
     {

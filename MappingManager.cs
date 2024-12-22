@@ -4,7 +4,7 @@ using SDL2;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace Controllers2MIDI
+namespace GameControllers2MIDI
 {
     public class MappingManager
     {
@@ -226,7 +226,7 @@ namespace Controllers2MIDI
             if (mapping.InputType == InputType.Button)
             {
                 mapping.InputType = InputType.Axis;
-                mapping.Map = Controllers2MIDI.Map.CC;
+                mapping.Map = GameControllers2MIDI.Map.CC;
                 mapping.Value = 1;
             }
         }

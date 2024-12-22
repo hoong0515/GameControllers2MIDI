@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using NAudio.Midi;
 using SDL2;
-namespace Controllers2MIDI
+namespace GameControllers2MIDI
 {
     public class MidiManager
     {

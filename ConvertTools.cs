@@ -1,4 +1,4 @@
-﻿namespace Controllers2MIDI
+﻿namespace GameControllers2MIDI
 {
 
     // Note와, Key, Octave 간 변환을 위한 클래스

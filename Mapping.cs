@@ -1,6 +1,6 @@
 ﻿using SDL2;
 
-namespace Controllers2MIDI
+namespace GameControllers2MIDI
 {
 
     public enum InputType

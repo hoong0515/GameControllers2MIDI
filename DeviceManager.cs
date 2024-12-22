@@ -36,10 +36,28 @@ namespace Controllers2MIDI
                 while (true)
                 {
                     UpdateControllerState();
+                    ProcessSDLEvents();
+                    UpdateControllerList();
                     //Thread.Sleep(50); // CPU 사용량 조절
                 }
             });
         }
+
+        private void ProcessSDLEvents()
+        {
+            SDL.SDL_Event sdlEvent;
+            while (SDL.SDL_PollEvent(out sdlEvent) == 1)
+            {
+                switch (sdlEvent.type)
+                {
+                    case SDL.SDL_EventType.SDL_CONTROLLERDEVICEADDED:
+                    case SDL.SDL_EventType.SDL_CONTROLLERDEVICEREMOVED:
+                        UpdateControllerList();
+                        break;
+                }
+            }
+        }
+
 
         public void ScanDevices()
         {
@@ -110,11 +128,19 @@ namespace Controllers2MIDI
             {
                 if (SDL.SDL_IsGameController(i) == SDL.SDL_bool.SDL_TRUE)
                 {
-                    IntPtr controllerHandle = SDL.SDL_GameControllerOpen(i);
-                    if (controllerHandle != IntPtr.Zero)
+                    if (!connectedControllers.ContainsKey(i))
                     {
-                        currentControllers[i] = controllerHandle;
-                        currentNames.Add(SDL.SDL_GameControllerName(controllerHandle));
+                        IntPtr controllerHandle = SDL.SDL_GameControllerOpen(i);
+                        if (controllerHandle != IntPtr.Zero)
+                        {
+                            currentControllers[i] = controllerHandle;
+                            currentNames.Add(SDL.SDL_GameControllerName(controllerHandle));
+                        }
+                    }
+                    else
+                    {
+                        currentControllers[i] = connectedControllers[i];
+                        currentNames.Add(SDL.SDL_GameControllerName(connectedControllers[i]));
                     }
                 }
             }
@@ -125,13 +151,14 @@ namespace Controllers2MIDI
                 // 기존 컨트롤러 닫기
                 foreach (var controller in connectedControllers.Values)
                 {
-                    SDL.SDL_GameControllerClose(controller);
+                    if (!currentControllers.Values.Contains(controller))
+                    {
+                        SDL.SDL_GameControllerClose(controller);
+                    }
                 }
 
                 // 새로운 상태로 갱신
                 connectedControllers = currentControllers;
-
-                UIManager.ResetControllerWarnings();
 
                 // 이벤트 트리거
                 ControllerListUpdated?.Invoke(currentNames);

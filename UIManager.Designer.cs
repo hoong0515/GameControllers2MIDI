@@ -36,6 +36,10 @@
             loadMappingButton = new Button();
             saveMappingButton = new Button();
             dataGridView = new DataGridView();
+            deleteButton = new Button();
+            addButton = new Button();
+            midiChannelDropdown = new ComboBox();
+            midiChanelDropdownLabel = new Label();
             Input = new DataGridViewButtonColumn();
             Map = new DataGridViewComboBoxColumn();
             Value = new DataGridViewTextBoxColumn();
@@ -43,10 +47,6 @@
             Key = new DataGridViewComboBoxColumn();
             Octave = new DataGridViewComboBoxColumn();
             Velocity = new DataGridViewTextBoxColumn();
-            deleteButton = new Button();
-            addButton = new Button();
-            midiChannelDropdown = new ComboBox();
-            midiChanelDropdownLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
             SuspendLayout();
             // 
@@ -125,51 +125,12 @@
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity });
             dataGridView.Location = new Point(338, 65);
+            dataGridView.MultiSelect = false;
             dataGridView.Name = "dataGridView";
             dataGridView.Size = new Size(796, 408);
             dataGridView.TabIndex = 7;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
             dataGridView.CellEndEdit += dataGridView_CellEndEdit;
-            // 
-            // Input
-            // 
-            Input.HeaderText = "Input";
-            Input.Name = "Input";
-            Input.Resizable = DataGridViewTriState.True;
-            Input.SortMode = DataGridViewColumnSortMode.Automatic;
-            // 
-            // Map
-            // 
-            Map.HeaderText = "Map";
-            Map.Items.AddRange(new object[] { "Note", "CC", "Pitchbend" });
-            Map.Name = "Map";
-            // 
-            // Value
-            // 
-            Value.HeaderText = "Value";
-            Value.Name = "Value";
-            // 
-            // isInverted
-            // 
-            isInverted.HeaderText = "isInverted";
-            isInverted.Name = "isInverted";
-            // 
-            // Key
-            // 
-            Key.HeaderText = "Key";
-            Key.Items.AddRange(new object[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" });
-            Key.Name = "Key";
-            // 
-            // Octave
-            // 
-            Octave.HeaderText = "Octave";
-            Octave.Items.AddRange(new object[] { "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8" });
-            Octave.Name = "Octave";
-            // 
-            // Velocity
-            // 
-            Velocity.HeaderText = "Velocity";
-            Velocity.Name = "Velocity";
             // 
             // deleteButton
             // 
@@ -212,6 +173,47 @@
             midiChanelDropdownLabel.TabIndex = 11;
             midiChanelDropdownLabel.Text = "MIDI Channel";
             // 
+            // Input
+            // 
+            Input.HeaderText = "Input";
+            Input.Name = "Input";
+            Input.Resizable = DataGridViewTriState.True;
+            // 
+            // Map
+            // 
+            Map.HeaderText = "Map";
+            Map.Items.AddRange(new object[] { "Note", "CC", "Pitchbend" });
+            Map.Name = "Map";
+            // 
+            // Value
+            // 
+            Value.HeaderText = "Value";
+            Value.Name = "Value";
+            Value.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
+            // isInverted
+            // 
+            isInverted.HeaderText = "isInverted";
+            isInverted.Name = "isInverted";
+            // 
+            // Key
+            // 
+            Key.HeaderText = "Key";
+            Key.Items.AddRange(new object[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" });
+            Key.Name = "Key";
+            // 
+            // Octave
+            // 
+            Octave.HeaderText = "Octave";
+            Octave.Items.AddRange(new object[] { "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8" });
+            Octave.Name = "Octave";
+            // 
+            // Velocity
+            // 
+            Velocity.HeaderText = "Velocity";
+            Velocity.Name = "Velocity";
+            Velocity.SortMode = DataGridViewColumnSortMode.NotSortable;
+            // 
             // UIManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -249,6 +251,8 @@
         private Button loadMappingButton;
         private Button deleteButton;
         private Button addButton;
+        private ComboBox midiChannelDropdown;
+        private Label midiChanelDropdownLabel;
         private DataGridViewButtonColumn Input;
         private DataGridViewComboBoxColumn Map;
         private DataGridViewTextBoxColumn Value;
@@ -256,7 +260,5 @@
         private DataGridViewComboBoxColumn Key;
         private DataGridViewComboBoxColumn Octave;
         private DataGridViewTextBoxColumn Velocity;
-        private ComboBox midiChannelDropdown;
-        private Label midiChanelDropdownLabel;
     }
 }

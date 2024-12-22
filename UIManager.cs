@@ -15,8 +15,6 @@ namespace Controllers2MIDI
         private bool isProcessing = false;
         private bool isInputCaptureActive = false;
         private int currentRowIndex;
-        private static HashSet<string> shownControllerWarnings = new HashSet<string>(); // 이미 경고가 표시된 컨트롤러 이름
-        private static HashSet<string> shownMidiWarnings = new HashSet<string>(); // 이미 경고가 표시된 MIDI 장치 이름
 
 
         public UIManager(MappingManager mappingManager, DeviceManager deviceManager, MidiManager midiManager)
@@ -24,8 +22,6 @@ namespace Controllers2MIDI
             this.mappingManager = mappingManager;
             this.deviceManager = deviceManager;
             this.midiManager = midiManager;
-            //deviceManager.ButtonPressed += HandleButtonInput;
-            //deviceManager.AxisMoved += HandleAxisInput;
             InitializeComponent();
             InitializeGrid();
         }
@@ -241,26 +237,19 @@ namespace Controllers2MIDI
 
             string input = "SDL_CONTROLLER_" + row.Cells["Input"].Value.ToString();
 
-
-            // 데이터 유효성 검사
-
-
-            // dataGridView의 데이터를 Mapping 객체에 반영
-
-            //if (Enum.TryParse(input, out SDL.SDL_GameControllerButton button))
-            //{
-            //    mappingManager.ModifyMapping(mapping, button);
-            //}
-            //else if (Enum.TryParse(input, out SDL.SDL_GameControllerAxis axis))
-            //{
-            //    mappingManager.ModifyMapping(mapping, axis);
-            //}
+            if (mapping.InputType == InputType.Axis)
+            {
+                if (row.Cells["Map"].Value.ToString() != "Note")
+                {
+                    mapping.Map = Enum.Parse<Map>(row.Cells["Map"].Value.ToString());
+                }
+            }
 
 
             mapping.ModifyNoteProperty(int.Parse(row.Cells["Value"].Value.ToString()), Enum.Parse<Key>(row.Cells["Key"].Value.ToString()), int.Parse(row.Cells["Octave"].Value.ToString()));
 
 
-            mapping.Map = Enum.Parse<Map>(row.Cells["Map"].Value.ToString());
+            
             mapping.IsInverted = (bool)row.Cells["isInverted"].Value;
             mapping.Velocity = int.Parse(row.Cells["Velocity"].Value.ToString());
 
@@ -291,6 +280,7 @@ namespace Controllers2MIDI
 
         private void InitializeGrid()
         {
+            dataGridView.EditingControlShowing += dataGridView_EditingControlShowing;
             LoadMappingsIntoGrid(); // 매핑 데이터 로드
         }
 
@@ -424,23 +414,13 @@ namespace Controllers2MIDI
 
         public void ShowControllerDisconnectedWarning(string controllerName)
         {
-            if (!shownControllerWarnings.Contains(controllerName))
-            {
-                // 경고 창 표시
-                MessageBox.Show($"Controller '{controllerName}' has been disconnected.",
-                                "Controller Disconnected",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
-
-                // 경고 표시 상태 저장
-                shownControllerWarnings.Add(controllerName);
-            }
+            // 경고 창 표시
+            MessageBox.Show($"Controller '{controllerName}' has been disconnected.",
+                            "Controller Disconnected",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning);
         }
 
-        public static void ResetControllerWarnings()
-        {
-            shownControllerWarnings.Clear(); // 경고 상태 초기화
-        }
 
         public void UpdateMidiDropdown(List<string> midiDevices)
         {
@@ -455,25 +435,6 @@ namespace Controllers2MIDI
             }
         }
 
-        public void ShowMidiDeviceDisconnectedWarning(string deviceName)
-        {
-            if (!shownMidiWarnings.Contains(deviceName))
-            {
-                // 경고 창 표시
-                MessageBox.Show($"MIDI Device '{deviceName}' has been disconnected.",
-                                "MIDI Device Disconnected",
-                                MessageBoxButtons.OK,
-                                MessageBoxIcon.Warning);
-
-                // 경고 표시 상태 저장
-                shownMidiWarnings.Add(deviceName);
-            }
-        }
-        public static void ResetMidiWarnings()
-        {
-            shownMidiWarnings.Clear(); // 경고 상태 초기화
-        }
-
 
         private void MidiChannelDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -485,34 +446,25 @@ namespace Controllers2MIDI
         }
 
 
-        //private void HandleButtonInput(SDL.SDL_GameControllerButton button)
-        //{
-        //    if (!isInputCaptureActive) return;
+        private void dataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (e.Control is ComboBox comboBox)
+            {
+                // 기존 이벤트 핸들러 제거 (중복 방지)
+                comboBox.SelectionChangeCommitted -= ComboBox_SelectionChangeCommitted;
 
+                // 새 이벤트 핸들러 추가
+                comboBox.SelectionChangeCommitted += ComboBox_SelectionChangeCommitted;
+            }
+        }
 
-        //    Invoke(new Action(() =>
-        //    {
-        //        Console.WriteLine($"UI: Button {button} pressed for input capture");
-        //        ApplyInputToMapping(button, currentRowIndex);
-        //        isInputCaptureActive = false; // 입력 캡처 종료
-
-        //    }));
-        //}
-
-        //private void HandleAxisInput(SDL.SDL_GameControllerAxis axis, short value)
-        //{
-        //    if (!isInputCaptureActive) return;
-
-        //    Invoke(new Action(() =>
-        //    {
-        //        if (Math.Abs(value) > Threshold)
-        //        {
-        //            Console.WriteLine($"UI: Axis {axis} moved with value {value} for input capture");
-        //            ApplyInputToMapping(axis, value, currentRowIndex);
-        //            isInputCaptureActive = false;
-        //        }
-        //    }));
-        //}
+        private void ComboBox_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            if (dataGridView.IsCurrentCellInEditMode)
+            {
+                dataGridView.EndEdit(); // 편집 종료
+            }
+        }
 
 
 

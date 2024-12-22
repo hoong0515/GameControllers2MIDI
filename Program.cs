@@ -14,7 +14,7 @@ namespace Controllers2MIDI
             SDL.SDL_Init(SDL.SDL_INIT_GAMECONTROLLER);
 
 
-            // WinForms 초기화
+            // Initialize WinForms
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -26,27 +26,22 @@ namespace Controllers2MIDI
 
             deviceManager.ScanDevices();
 
-            // 타이머 설정 및 이벤트 연결
-            var timer = new System.Timers.Timer(300); // 300ms 간격으로 상태 확인
+            // Set timer & connect to events
+            var timer = new System.Timers.Timer(300); // Check device connecting status every 300ms 
             timer.Elapsed += (sender, e) =>
             {
                 deviceManager.UpdateControllerList();
                 deviceManager.CheckActiveController();
 
-
-                //midiManager.UpdateMidiDeviceList();
-                //midiManager.CheckActiveMidiDevice();
             };
 
             deviceManager.ControllerListUpdated += uiManager.UpdateControllerDropdown;
             deviceManager.ControllerDisconnected += uiManager.ShowControllerDisconnectedWarning;
 
-            //midiManager.MidiDeviceListUpdated += uiManager.UpdateMidiDropdown;
-            //midiManager.MidiDeviceDisconnected += uiManager.ShowMidiDeviceDisconnectedWarning;
 
             timer.Start();
 
-            // UI 실행
+            // Execute UI
             Application.Run(uiManager);
         }
     }

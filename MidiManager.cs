@@ -20,8 +20,8 @@ namespace Controllers2MIDI
         private Dictionary<SDL.SDL_GameControllerButton, bool> buttonStates = new Dictionary<SDL.SDL_GameControllerButton, bool>(); // 버튼 상태
         private int lastPitchBendValue = 0; // Pitch Bend 값 (초기값은 중앙)
 
-        public event Action<List<string>> MidiDeviceListUpdated;
-        public event Action<string> MidiDeviceDisconnected;
+        //public event Action<List<string>> MidiDeviceListUpdated;
+        //public event Action<string> MidiDeviceDisconnected;
 
         private Dictionary<int, string> connectedMidiDevices = new Dictionary<int, string>();
         private int? activeMidiDeviceIndex; // 활성 MIDI 장치의 인덱스
@@ -41,6 +41,10 @@ namespace Controllers2MIDI
             deviceManager.AxisMoved += HandleAxisInput;
             this.mappingManager = mappingManager;
         }
+
+
+
+
 
 
         public void StartProcessing(IntPtr activeController, MappingManager mappingManager)
@@ -246,62 +250,62 @@ namespace Controllers2MIDI
             Console.WriteLine($"Connected to MIDI Device: {MidiOut.DeviceInfo(deviceIndex).ProductName}");
         }
 
-        public void UpdateMidiDeviceList()
-        {
-            var currentDevices = new Dictionary<int, string>();
+        //public void UpdateMidiDeviceList()
+        //{
+        //    var currentDevices = new Dictionary<int, string>();
 
-            // 현재 연결된 MIDI 장치 가져오기
-            for (int i = 0; i < MidiOut.NumberOfDevices; i++)
-            {
-                try
-                {
-                    currentDevices[i] = MidiOut.DeviceInfo(i).ProductName;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error retrieving MIDI device info: {ex.Message}");
-                }
-            }
+        //    // 현재 연결된 MIDI 장치 가져오기
+        //    for (int i = 0; i < MidiOut.NumberOfDevices; i++)
+        //    {
+        //        try
+        //        {
+        //            currentDevices[i] = MidiOut.DeviceInfo(i).ProductName;
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"Error retrieving MIDI device info: {ex.Message}");
+        //        }
+        //    }
 
-            // 변경 사항 감지
-            bool devicesChanged = !currentDevices.SequenceEqual(connectedMidiDevices);
+        //    // 변경 사항 감지
+        //    bool devicesChanged = !currentDevices.SequenceEqual(connectedMidiDevices);
 
-            // 추가된 장치 감지
-            var addedDevices = currentDevices.Keys.Except(connectedMidiDevices.Keys)
-                .Select(key => currentDevices[key]).ToList();
+        //    // 추가된 장치 감지
+        //    var addedDevices = currentDevices.Keys.Except(connectedMidiDevices.Keys)
+        //        .Select(key => currentDevices[key]).ToList();
 
-            // 제거된 장치 감지
-            var removedDevices = connectedMidiDevices.Keys.Except(currentDevices.Keys)
-                .Select(key => connectedMidiDevices[key]).ToList();
+        //    // 제거된 장치 감지
+        //    var removedDevices = connectedMidiDevices.Keys.Except(currentDevices.Keys)
+        //        .Select(key => connectedMidiDevices[key]).ToList();
 
-            // 목록 갱신
-            connectedMidiDevices = currentDevices;
+        //    // 목록 갱신
+        //    connectedMidiDevices = currentDevices;
 
-            // 이벤트 트리거
-            if (devicesChanged)
-            {
-                MidiDeviceListUpdated?.Invoke(currentDevices.Values.ToList());
+        //    // 이벤트 트리거
+        //    if (devicesChanged)
+        //    {
+        //        MidiDeviceListUpdated?.Invoke(currentDevices.Values.ToList());
 
-                foreach (var removedDevice in removedDevices)
-                {
-                    MidiDeviceDisconnected?.Invoke(removedDevice);
-                }
-            }
-        }
-        public void CheckActiveMidiDevice()
-        {
-            // 활성화된 MIDI 장치가 제거되었는지 확인
-            if (activeMidiDeviceIndex.HasValue && !connectedMidiDevices.ContainsKey(activeMidiDeviceIndex.Value))
-            {
-                string disconnectedDeviceName = connectedMidiDevices.GetValueOrDefault(activeMidiDeviceIndex.Value, "Unknown MIDI Device");
+        //        foreach (var removedDevice in removedDevices)
+        //        {
+        //            MidiDeviceDisconnected?.Invoke(removedDevice);
+        //        }
+        //    }
+        //}
+        //public void CheckActiveMidiDevice()
+        //{
+        //    // 활성화된 MIDI 장치가 제거되었는지 확인
+        //    if (activeMidiDeviceIndex.HasValue && !connectedMidiDevices.ContainsKey(activeMidiDeviceIndex.Value))
+        //    {
+        //        string disconnectedDeviceName = connectedMidiDevices.GetValueOrDefault(activeMidiDeviceIndex.Value, "Unknown MIDI Device");
 
-                // 활성 상태 초기화
-                activeMidiDeviceIndex = null;
+        //        // 활성 상태 초기화
+        //        activeMidiDeviceIndex = null;
 
-                MidiDeviceDisconnected?.Invoke(disconnectedDeviceName);
+        //        MidiDeviceDisconnected?.Invoke(disconnectedDeviceName);
 
-            }
-        }
+        //    }
+        //}
 
 
 

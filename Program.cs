@@ -34,15 +34,15 @@ namespace Controllers2MIDI
                 deviceManager.CheckActiveController();
 
 
-                midiManager.UpdateMidiDeviceList();
-                midiManager.CheckActiveMidiDevice();
+                //midiManager.UpdateMidiDeviceList();
+                //midiManager.CheckActiveMidiDevice();
             };
 
             deviceManager.ControllerListUpdated += uiManager.UpdateControllerDropdown;
             deviceManager.ControllerDisconnected += uiManager.ShowControllerDisconnectedWarning;
 
-            midiManager.MidiDeviceListUpdated += uiManager.UpdateMidiDropdown;
-            midiManager.MidiDeviceDisconnected += uiManager.ShowMidiDeviceDisconnectedWarning;
+            //midiManager.MidiDeviceListUpdated += uiManager.UpdateMidiDropdown;
+            //midiManager.MidiDeviceDisconnected += uiManager.ShowMidiDeviceDisconnectedWarning;
 
             timer.Start();
 

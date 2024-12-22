@@ -27,12 +27,14 @@ namespace Controllers2MIDI
             deviceManager.ScanDevices();
 
             // 타이머 설정 및 이벤트 연결
-            var timer = new System.Timers.Timer(1000); // 1초 간격으로 상태 확인
+            var timer = new System.Timers.Timer(300); // 300ms 간격으로 상태 확인
             timer.Elapsed += (sender, e) =>
             {
                 deviceManager.UpdateControllerList();
-                midiManager.UpdateMidiDeviceList();
                 deviceManager.CheckActiveController();
+
+
+                midiManager.UpdateMidiDeviceList();
                 midiManager.CheckActiveMidiDevice();
             };
 

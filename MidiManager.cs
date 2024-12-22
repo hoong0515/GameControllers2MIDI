@@ -294,10 +294,12 @@ namespace Controllers2MIDI
             if (activeMidiDeviceIndex.HasValue && !connectedMidiDevices.ContainsKey(activeMidiDeviceIndex.Value))
             {
                 string disconnectedDeviceName = connectedMidiDevices.GetValueOrDefault(activeMidiDeviceIndex.Value, "Unknown MIDI Device");
-                MidiDeviceDisconnected?.Invoke(disconnectedDeviceName);
 
                 // 활성 상태 초기화
                 activeMidiDeviceIndex = null;
+
+                MidiDeviceDisconnected?.Invoke(disconnectedDeviceName);
+
             }
         }
 

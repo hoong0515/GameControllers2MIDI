@@ -146,11 +146,12 @@ namespace Controllers2MIDI
                 // 제거된 컨트롤러의 이름 출력
                 string disconnectedControllerName = activeControllerName ?? "Unknown Controller";
 
-                ControllerDisconnected?.Invoke(disconnectedControllerName);
-
                 // 활성화 상태 초기화
                 activeControllerIndex = null;
                 activeControllerName = null;
+
+                ControllerDisconnected?.Invoke(disconnectedControllerName);
+
             }
         }
 

@@ -35,6 +35,7 @@ namespace GameControllers2MIDI
         private Key key = Key.C;
         private int oct = 4;
         private int velocity = 100;
+        private bool isUsingAbs = false;
 
         public Mapping()
         {
@@ -50,7 +51,7 @@ namespace GameControllers2MIDI
             }
 
         }
-        public Mapping(dynamic input, Map map, int value = 1, bool isInverted = false, Key key = Key.C, int oct = 4, int velocity = 100)
+        public Mapping(dynamic input, Map map, int value = 1, bool isInverted = false, Key key = Key.C, int oct = 4, int velocity = 100, bool isUsingAbs = false)
         {
             this.inputType = input.GetType() == typeof(SDL.SDL_GameControllerButton) ? InputType.Button : InputType.Axis;
             this.input = input;
@@ -60,6 +61,7 @@ namespace GameControllers2MIDI
             this.key = key;
             this.oct = oct;
             this.velocity = velocity;
+            this.isUsingAbs = isUsingAbs;
             if (!usingInputs.ContainsKey(this.input))
             {
                 usingInputs[this.input] = 0;
@@ -107,13 +109,14 @@ namespace GameControllers2MIDI
             }
         }
 
-        public Mapping(SDL.SDL_GameControllerAxis input, Map map, int value = 1, bool isInverted = false)
+        public Mapping(SDL.SDL_GameControllerAxis input, Map map, int value = 1, bool isInverted = false, bool isUsingAbs = false)
         {
             this.inputType = InputType.Axis;
             this.input = input;
             this.map = map;
             this.value = value;
             this.isInverted = isInverted;
+            this.isUsingAbs = isUsingAbs;
             if (!usingInputs.ContainsKey(this.input))
             {
                 usingInputs[this.input] = 0;
@@ -165,6 +168,12 @@ namespace GameControllers2MIDI
             get { return velocity; }    set { velocity = value; }
         }
 
+        public bool IsUsingAbs
+        {
+            get { return isUsingAbs; }
+            set { isUsingAbs = value; }
+        }
+
         public Dictionary<string, dynamic> ToDictionary(bool getEnumName = false)
         {
             Dictionary<string, dynamic> dict;
@@ -179,7 +188,8 @@ namespace GameControllers2MIDI
                     { "isInverted", isInverted },
                     { "key", key },
                     { "oct", oct },
-                    { "velocity", velocity }
+                    { "velocity", velocity },
+                    { "isUsingAbs", isUsingAbs }
                 };
             } else
             {
@@ -191,7 +201,8 @@ namespace GameControllers2MIDI
                     { "isInverted", isInverted },
                     { "key", key.ToString() },
                     { "oct", oct },
-                    { "velocity", velocity }
+                    { "velocity", velocity },
+                    { "isUsingAbs", isUsingAbs }
                 };
             }
 

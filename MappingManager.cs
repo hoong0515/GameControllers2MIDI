@@ -20,8 +20,8 @@ namespace GameControllers2MIDI
             AddButtonMapping(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A, note: 60, velocity: 100); // Middle C
             AddButtonMapping(SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_B, note: 62, velocity: 100); // D Note
             AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_RIGHTX, isInverted: true, isPitchbend: true); // 오른쪽 X축을 Pitch Bend에 매핑
-            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY, cc: 11); // Expression
-            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, cc: 1); // Modulation
+            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTY, cc: 11, isUsingAbs: true); // Expression
+            AddAxisMapping(SDL.SDL_GameControllerAxis.SDL_CONTROLLER_AXIS_LEFTX, cc: 1, isUsingAbs: true); // Modulation
 
         }
 
@@ -86,7 +86,7 @@ namespace GameControllers2MIDI
 
 
         // Axis 매핑 추가
-        public void AddAxisMapping(SDL.SDL_GameControllerAxis axis, int cc = 1, bool isInverted = false, bool isPitchbend = false)
+        public void AddAxisMapping(SDL.SDL_GameControllerAxis axis, int cc = 1, bool isInverted = false, bool isPitchbend = false, bool isUsingAbs = false)
         {
             //axisToCCMap[axis] = (cc, isInverted);
             if (isPitchbend)
@@ -95,7 +95,7 @@ namespace GameControllers2MIDI
             }
             else
             {
-                mappings.Add(new Mapping(axis, Map.CC, value: cc, isInverted: isInverted));
+                mappings.Add(new Mapping(axis, Map.CC, value: cc, isInverted: isInverted, isUsingAbs));
             }
         }
 

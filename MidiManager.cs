@@ -127,7 +127,7 @@ namespace GameControllers2MIDI
                 {
                     case Map.CC:
                         int ccNumber = mapping.Value;
-                        int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted);
+                        int ccValue = MapToMIDIValue(axisValue, mapping.IsInverted, mapping.IsUsingAbs);
                         SendControlChange(ccNumber, ccValue);
                         break;
                     case Map.Pitchbend:
@@ -140,13 +140,13 @@ namespace GameControllers2MIDI
 
 
 
-        private int MapToMIDIValue(short axisValue, bool invertDirection)
+        private int MapToMIDIValue(short axisValue, bool invertDirection, bool isUsingAbs)
         {
             if (invertDirection)
             {
                 axisValue = (short)-axisValue;
             }
-            return (axisValue + 32768) * 127 / 65535;
+            return isUsingAbs? Math.Abs(axisValue * 127 / 32767) : (axisValue + 32768) * 127 / 65535;
         }
         private int MapToPitchBend(short axisValue, bool invertDirection)
         {

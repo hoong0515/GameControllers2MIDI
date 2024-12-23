@@ -140,13 +140,10 @@ namespace GameControllers2MIDI
 
 
 
-        private int MapToMIDIValue(short axisValue, bool invertDirection, bool isUsingAbs)
+        private int MapToMIDIValue(short axisValue, bool isInverted, bool isUsingAbs)
         {
-            if (invertDirection)
-            {
-                axisValue = (short)-axisValue;
-            }
-            return isUsingAbs? Math.Abs(axisValue * 127 / 32767) : (axisValue + 32768) * 127 / 65535;
+            int midiValue = isUsingAbs ? Math.Abs(axisValue * 127 / 32767) : (axisValue + 32768) * 127 / 65535;
+            return isInverted ? 127 - midiValue : midiValue;
         }
         private int MapToPitchBend(short axisValue, bool invertDirection)
         {

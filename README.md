@@ -2,7 +2,7 @@
 This program is currently tested with Nintendo Switch Pro Controller, USB Mode only.
 If there is any problem on other environments, please notice me.
 
-# Controllers2MIDI
+# GameControllers2MIDI
 
 ## Overview
 Controllers2MIDI is a Windows application that enables game controllers (e.g., Xbox, Nintendo Switch Pro, PlayStation) to be mapped to MIDI signals. It is designed for musicians, developers, and creators looking to integrate controller inputs into their digital audio workstations (DAWs) or other MIDI-enabled software.

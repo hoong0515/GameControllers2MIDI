@@ -496,7 +496,6 @@ namespace GameControllers2MIDI
             if (e.RowIndex >= 0)
             {
                 var mapping = mappings[e.RowIndex];
-                DataGridViewCell cell;
                 DataGridViewComboBoxCell comboBoxCell;
                 DataGridViewCheckBoxCell checkBoxCell;
 
@@ -550,86 +549,33 @@ namespace GameControllers2MIDI
                             break;
                     }
                 }
-
-
-                //if (mapping.InputType == InputType.Button)
-                //{
-                //    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
-                //    {
-
-                //        switch (c.OwningColumn.Name)
-                //        {
-                //            case "isUsingAbsDataGridViewTextBoxColumn":
-                //                c.ReadOnly = true;
-                //                checkBoxCell = (DataGridViewCheckBoxCell)c;
-                //                checkBoxCell.Style.BackColor = Color.LightGray;
-                //                checkBoxCell.Style.ForeColor = Color.DarkGray;
-                //                checkBoxCell.FlatStyle = FlatStyle.Flat;
-                //                break;
-                //            default:
-                //                c.ReadOnly = false;
-                //                c.Style.BackColor = Color.White;
-                //                c.Style.ForeColor = Color.Black;
-                //                switch (c.OwningColumn.Name)
-                //                {
-                //                    case "keyDataGridViewTextBoxColumn":
-                //                    case "octDataGridViewTextBoxColumn":
-                //                        comboBoxCell = (DataGridViewComboBoxCell)c;
-                //                        comboBoxCell.FlatStyle = FlatStyle.Standard;
-                //                        break;
-                //                    case "isUsingAbsDataGridViewTextBoxColumn":
-                //                        checkBoxCell = (DataGridViewCheckBoxCell)c;
-                //                        checkBoxCell.FlatStyle = FlatStyle.Standard;
-                //                        break;
-
-                //                }
-                //                break;
-                //        }
-
-                //    }
-
-                //}
-                //else if (mapping.InputType == InputType.Axis)
-                //{
-                //    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
-                //    {
-                //        switch (c.OwningColumn.Name)
-                //        {
-                //            case "keyDataGridViewTextBoxColumn":
-                //            case "octDataGridViewTextBoxColumn":
-                //                c.ReadOnly = true;
-                //                comboBoxCell = (DataGridViewComboBoxCell)c;
-                //                comboBoxCell.FlatStyle = FlatStyle.Flat;
-                //                break;
-                //            case "velocityDataGridViewTextBoxColumn":
-                //                c.ReadOnly = true;
-                //                c.Style.BackColor = Color.LightGray;
-                //                c.Style.ForeColor = Color.DarkGray;
-                //                break;
-                //            default:
-                //                c.ReadOnly = false;
-                //                c.Style.BackColor = Color.White;
-                //                c.Style.ForeColor = Color.Black;
-                //                switch (c.OwningColumn.Name)
-                //                {
-                //                    case "keyDataGridViewTextBoxColumn":
-                //                    case "octDataGridViewTextBoxColumn":
-                //                        comboBoxCell = (DataGridViewComboBoxCell)c;
-                //                        comboBoxCell.FlatStyle = FlatStyle.Standard;
-                //                        break;
-                //                    case "isUsingAbsDataGridViewTextBoxColumn":
-                //                        checkBoxCell = (DataGridViewCheckBoxCell)c;
-                //                        checkBoxCell.FlatStyle = FlatStyle.Standard;
-                //                        break;
-
-                //                }
-                //                break;
-                //        }
-                //    }
-
-                //}
             }
 
+        }
+
+        private void DataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
+        {
+            if (dataGridView.CurrentCell.OwningColumn.Name == "mapDataGridViewTextBoxColumn" && e.Control is ComboBox comboBox)
+            {
+                int previousIndex = comboBox.SelectedIndex;
+                // ComboBox 선택지 초기화
+                comboBox.Items.Clear();
+
+                // 현재 행의 Mapping 객체 가져오기
+                var mapping = mappings[dataGridView.CurrentCell.RowIndex];
+
+                // InputType에 따라 ComboBox 선택지 설정
+                if (mapping.InputType == InputType.Button)
+                {
+                    comboBox.Items.AddRange(new object[] { "Note" });
+                    comboBox.SelectedIndex = 0;
+                }
+                else if (mapping.InputType == InputType.Axis)
+                {
+                    comboBox.Items.AddRange(new object[] { "CC", "Pitchbend" });
+                    comboBox.SelectedIndex = previousIndex - 1;
+                }
+            }
         }
     }
 }

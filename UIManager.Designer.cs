@@ -135,6 +135,7 @@
             dataGridView.Size = new Size(854, 449);
             dataGridView.TabIndex = 7;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
+            dataGridView.EditingControlShowing += DataGridView_EditingControlShowing;
             dataGridView.RowPostPaint += DataGridView_RowPostPaint;
             // 
             // inputDataGridViewTextBoxColumn

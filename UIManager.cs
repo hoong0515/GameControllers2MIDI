@@ -26,7 +26,6 @@ namespace GameControllers2MIDI
             this.midiManager = midiManager;
 
             InitializeComponent();
-            InitializeGrid();
             mappings = mappingManager.GetAllMappings();
             dataGridView.DataSource = mappings;
         }
@@ -287,11 +286,6 @@ namespace GameControllers2MIDI
 
         }
 
-        private void InitializeGrid()
-        {
-            //dataGridView.EditingControlShowing += dataGridView_EditingControlShowing;
-            //LoadMappingsIntoGrid(); // 매핑 데이터 로드
-        }
 
         private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -497,6 +491,53 @@ namespace GameControllers2MIDI
 
         }
 
+        private void DataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
+        {
+            if (e.RowIndex >= 0)
+            {
+                var mapping = mappings[e.RowIndex];
+                DataGridViewCell cell;
 
+                if (mapping.InputType == InputType.Button)
+                {
+                    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
+                    {
+                        if (c.OwningColumn.Name == "isUsingAbsDataGridViewCheckBoxColumn")
+                        {
+                            c.ReadOnly = true;
+                            c.Style.BackColor = Color.LightGray;
+                            c.Style.ForeColor = Color.DarkGray;
+                        }
+                        else
+                        {
+                            c.ReadOnly = false;
+                            c.Style.BackColor = Color.White;
+                            c.Style.ForeColor = Color.Black;
+                        }
+                    }
+
+                }
+                else if (mapping.InputType == InputType.Axis)
+                {
+                    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
+                    {
+                        if (c.OwningColumn.Name == "keyDataGridViewTextBoxColumn" || c.OwningColumn.Name == "octDataGridViewTextBoxColumn" || c.OwningColumn.Name == "velocityDataGridViewTextBoxColumn")
+                        {
+                            c.ReadOnly = true;
+                            c.Style.BackColor = Color.LightGray;
+                            c.Style.ForeColor = Color.DarkGray;
+                        }
+                        else
+                        {
+                            c.ReadOnly = false;
+                            c.Style.BackColor = Color.White;
+                            c.Style.ForeColor = Color.Black;
+                        }
+                    }
+
+                }
+            }
+
+        }
     }
 }

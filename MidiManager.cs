@@ -37,6 +37,11 @@ namespace GameControllers2MIDI
             deviceManager.ButtonReleased += HandleButtonInput;
             deviceManager.AxisMoved += HandleAxisInput;
             this.mappingManager = mappingManager;
+
+            foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
+            {
+                buttonStates[button] = false;
+            }
         }
 
 
@@ -54,12 +59,6 @@ namespace GameControllers2MIDI
 
             isProcessing = true;
 
-            // 버튼 상태 초기화
-            buttonStates.Clear();
-            foreach (SDL.SDL_GameControllerButton button in Enum.GetValues(typeof(SDL.SDL_GameControllerButton)))
-            {
-                buttonStates[button] = false;
-            }
         }
 
 

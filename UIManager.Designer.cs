@@ -125,6 +125,7 @@
             // 
             dataGridView.AllowUserToAddRows = false;
             dataGridView.AllowUserToDeleteRows = false;
+            dataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridView.AutoGenerateColumns = false;
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridView.Columns.AddRange(new DataGridViewColumn[] { inputDataGridViewTextBoxColumn, mapDataGridViewTextBoxColumn, valueDataGridViewTextBoxColumn, isInvertedDataGridViewCheckBoxColumn, keyDataGridViewTextBoxColumn, octDataGridViewTextBoxColumn, velocityDataGridViewTextBoxColumn, isUsingAbsDataGridViewCheckBoxColumn });

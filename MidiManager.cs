@@ -87,13 +87,19 @@ namespace GameControllers2MIDI
             // 버튼 상태가 변경된 경우만 처리
             if (isPressed && (!buttonStates.ContainsKey(button) || !buttonStates[button]))
             {
-                // Note On 처리
                 buttonStates[button] = true; // 상태 업데이트
                 List<Mapping> buttonMappings = mappingManager.GetButtonMappings(button);
 
                 foreach (Mapping mapping in buttonMappings)
                 {
-                    SendNoteOn(mapping.Value, mapping.Velocity);
+                    if (!mapping.IsInverted)
+                    {
+                        SendNoteOn(mapping.Value, mapping.Velocity);
+                    }
+                    else
+                    {
+                        SendNoteOff(mapping.Value);
+                    }
                 }
             }
             else if (!isPressed && buttonStates.ContainsKey(button) && buttonStates[button])
@@ -104,7 +110,14 @@ namespace GameControllers2MIDI
 
                 foreach (Mapping mapping in buttonMappings)
                 {
-                    SendNoteOff(mapping.Value);
+                    if (!mapping.IsInverted)
+                    {
+                        SendNoteOff(mapping.Value);
+                    }
+                    else
+                    {
+                        SendNoteOn(mapping.Value, mapping.Velocity);
+                    }
                 }
             }
 

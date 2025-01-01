@@ -55,7 +55,6 @@ Controllers2MIDI is a Windows application that enables game controllers (e.g., X
    - Input from your controller will now be converted into MIDI signals.
 
 ## Known Issues
-- **Important:** While editing data in a row, if you edit data in another row, error occurs.
 - MIDI device list may not dynamically update in certain rare cases.
 - Limited support for third-party or non-standard controllers.
 

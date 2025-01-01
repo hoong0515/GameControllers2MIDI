@@ -555,6 +555,12 @@ namespace GameControllers2MIDI
 
         private void DataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
+
+            if (e.Control is ComboBox c)
+            {
+                c.DropDownClosed += ComboBox_DropDownClosed;
+            }
+
             if (dataGridView.CurrentCell.OwningColumn.Name == "mapDataGridViewTextBoxColumn" && e.Control is ComboBox comboBox)
             {
                 int previousIndex = comboBox.SelectedIndex;
@@ -575,6 +581,39 @@ namespace GameControllers2MIDI
                     comboBox.Items.AddRange(new object[] { "CC", "Pitchbend" });
                     comboBox.SelectedIndex = previousIndex - 1;
                 }
+            }
+        }
+
+        private void DataGridView_CellLeave(object sender, DataGridViewCellEventArgs e)
+        {
+            if (dataGridView.IsCurrentCellInEditMode)
+            {
+                dataGridView.EndEdit(); // 편집 종료
+            }
+
+        }
+
+        private void ComboBox_DropDownClosed(object sender, EventArgs e)
+        {
+            if (dataGridView.IsCurrentCellInEditMode)
+            {
+                dataGridView.EndEdit(); // 편집 종료
+            }
+        }
+
+        private void DataGridView_CellEnter(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                if (dataGridView.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn && !dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].ReadOnly)
+                {
+                    dataGridView.BeginEdit(true);
+                    ((ComboBox)dataGridView.EditingControl).DroppedDown = true;
+                }
+                //else if (dataGridView.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn)
+                //{
+                //    dataGridView.BeginEdit(true);
+                //}
             }
         }
     }

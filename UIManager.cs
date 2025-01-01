@@ -1,4 +1,5 @@
-﻿using SDL2;
+﻿using System.ComponentModel;
+using SDL2;
 
 namespace GameControllers2MIDI
 {
@@ -15,6 +16,7 @@ namespace GameControllers2MIDI
         private bool isProcessing = false;
         private bool isInputCaptureActive = false;
         private int currentRowIndex;
+        private BindingList<Mapping> mappings;
 
 
         public UIManager(MappingManager mappingManager, DeviceManager deviceManager, MidiManager midiManager)
@@ -22,8 +24,11 @@ namespace GameControllers2MIDI
             this.mappingManager = mappingManager;
             this.deviceManager = deviceManager;
             this.midiManager = midiManager;
+
             InitializeComponent();
             InitializeGrid();
+            mappings = mappingManager.GetAllMappings();
+            dataGridView.DataSource = mappings;
         }
 
 
@@ -65,8 +70,10 @@ namespace GameControllers2MIDI
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
+                mappingBindingSource.RaiseListChangedEvents = false;
                 mappingManager.LoadMappingFromJson(openFileDialog.FileName);
-                LoadMappingsIntoGrid();
+                mappingBindingSource.RaiseListChangedEvents = true;
+                //LoadMappingsIntoGrid();
                 MessageBox.Show("Mapping loaded successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
@@ -201,29 +208,29 @@ namespace GameControllers2MIDI
 
         private void LoadMappingsIntoGrid()
         {
-            if (dataGridView.InvokeRequired)
-            {
-                dataGridView.Invoke(new Action(LoadMappingsIntoGrid));
-                return;
-            }
+            //if (dataGridView.InvokeRequired)
+            //{
+            //    dataGridView.Invoke(new Action(LoadMappingsIntoGrid));
+            //    return;
+            //}
 
-            dataGridView.Rows.Clear();
-            foreach (var mapping in mappingManager.GetAllMappings())
-            {
-                var dictionary = mapping.ToDictionary(getEnumName: true);
+            //dataGridView.Rows.Clear();
+            //foreach (var mapping in mappingManager.GetAllMappings())
+            //{
+            //    var dictionary = mapping.ToDictionary(getEnumName: true);
 
-                // DataGridView에 데이터 추가
-                dataGridView.Rows.Add(
-                    dictionary["input"].Substring(15),
-                    dictionary["map"].ToString(),
-                    dictionary["value"],
-                    dictionary["isInverted"],
-                    dictionary["key"].ToString(),
-                    dictionary["oct"].ToString(),
-                    dictionary["velocity"],
-                    dictionary["isUsingAbs"]
-                );
-            }
+            //    // DataGridView에 데이터 추가
+            //    dataGridView.Rows.Add(
+            //        dictionary["input"].Substring(15),
+            //        dictionary["map"].ToString(),
+            //        dictionary["value"],
+            //        dictionary["isInverted"],
+            //        dictionary["key"].ToString(),
+            //        dictionary["oct"].ToString(),
+            //        dictionary["velocity"],
+            //        dictionary["isUsingAbs"]
+            //    );
+            //}
         }
 
 
@@ -250,7 +257,7 @@ namespace GameControllers2MIDI
             mapping.ModifyNoteProperty(int.Parse(row.Cells["Value"].Value.ToString()), Enum.Parse<Key>(row.Cells["Key"].Value.ToString()), int.Parse(row.Cells["Octave"].Value.ToString()));
 
 
-            
+
             mapping.IsInverted = (bool)row.Cells["isInverted"].Value;
             mapping.Velocity = int.Parse(row.Cells["Velocity"].Value.ToString());
             mapping.IsUsingAbs = (bool)row.Cells["isUsingAbs"].Value;
@@ -258,14 +265,13 @@ namespace GameControllers2MIDI
 
 
             // 데이터 재로드
-            LoadMappingsIntoGrid();
+            //LoadMappingsIntoGrid();
         }
 
         private void AddNewMapping(object sender, EventArgs e)
         {
             var newMapping = new Mapping();
             mappingManager.AddMapping(newMapping);
-            LoadMappingsIntoGrid(); // 데이터 재로드
         }
 
         private void DeleteSelectedMapping(object sender, EventArgs e)
@@ -274,21 +280,24 @@ namespace GameControllers2MIDI
             {
                 if (row.Index < 0 || row.Index >= mappingManager.GetAllMappings().Count) continue;
 
-                var mapping = mappingManager.GetAllMappings()[row.Index];
-                mappingManager.RemoveMapping(mapping);
+                mappingManager.RemoveMapping(row.Index);
             }
-            LoadMappingsIntoGrid(); // 데이터 재로드
+
+
+
         }
 
         private void InitializeGrid()
         {
-            dataGridView.EditingControlShowing += dataGridView_EditingControlShowing;
-            LoadMappingsIntoGrid(); // 매핑 데이터 로드
+            //dataGridView.EditingControlShowing += dataGridView_EditingControlShowing;
+            //LoadMappingsIntoGrid(); // 매핑 데이터 로드
         }
 
         private void dataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.ColumnIndex == dataGridView.Columns["Input"].Index && e.RowIndex >= 0)
+
+            var senderGrid = (DataGridView)sender;
+            if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn && e.RowIndex >= 0)
             {
                 if (isProcessing)
                 {
@@ -378,28 +387,27 @@ namespace GameControllers2MIDI
 
 
 
-        private void ApplyInputToMapping(SDL.SDL_GameControllerButton button, int rowIndex)
+        private void ApplyInputToMapping(dynamic input, int rowIndex)
         {
-            var row = dataGridView.Rows[rowIndex];
+            //var row = dataGridView.Rows[rowIndex];
             var mapping = mappingManager.GetAllMappings()[rowIndex];
-
-            mappingManager.ModifyMapping(mapping, button);
-            row.Cells["Input"].Value = button.ToString().Substring(15);
+            mapping.Input = input;
 
             // 추가로 업데이트가 필요하다면 호출
-            LoadMappingsIntoGrid();
+            //LoadMappingsIntoGrid();
         }
 
-        private void ApplyInputToMapping(SDL.SDL_GameControllerAxis axis, int rowIndex)
-        {
-            var row = dataGridView.Rows[rowIndex];
-            var mapping = mappingManager.GetAllMappings()[rowIndex];
+        //private void ApplyInputToMapping(SDL.SDL_GameControllerAxis axis, int rowIndex)
+        //{
+        //    //var row = dataGridView.Rows[rowIndex];
+        //    var mapping = mappingManager.GetAllMappings()[rowIndex];
+        //    mapping.Input = axis;
 
-            mappingManager.ModifyMapping(mapping, axis);
-            
-            row.Cells["Input"].Value = axis.ToString().Substring(15);
-            LoadMappingsIntoGrid();
-        }
+        //    //mappingManager.ModifyMapping(mapping, axis);
+
+        //    //row.Cells["Input"].Value = axis.ToString().Substring(15);
+        //    //LoadMappingsIntoGrid();
+        //}
 
         public void UpdateControllerDropdown(List<string> controllers)
         {
@@ -448,17 +456,6 @@ namespace GameControllers2MIDI
         }
 
 
-        private void dataGridView_EditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
-        {
-            if (e.Control is ComboBox comboBox)
-            {
-                // 기존 이벤트 핸들러 제거 (중복 방지)
-                comboBox.SelectionChangeCommitted -= ComboBox_SelectionChangeCommitted;
-
-                // 새 이벤트 핸들러 추가
-                comboBox.SelectionChangeCommitted += ComboBox_SelectionChangeCommitted;
-            }
-        }
 
         private void ComboBox_SelectionChangeCommitted(object sender, EventArgs e)
         {
@@ -468,6 +465,37 @@ namespace GameControllers2MIDI
             }
         }
 
+        private void mappingBindingSource_CurrentChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+            {
+                var mapping = mappings[e.RowIndex];
+                var columnName = dataGridView.Columns[e.ColumnIndex].Name;
+
+                if (mapping.InputType == InputType.Button)
+                {
+                    if (columnName == "isUsingAbsDataGridViewCheckBoxColumn")
+                    {
+                        e.CellStyle.BackColor = Color.LightGray;
+                        e.CellStyle.ForeColor = Color.DarkGray;
+                    }
+                }
+                else if (mapping.InputType == InputType.Axis)
+                {
+                    if (columnName == "velocityDataGridViewTextBoxColumn")
+                    {
+                        e.CellStyle.BackColor = Color.LightGray;
+                        e.CellStyle.ForeColor = Color.DarkGray;
+                    }
+                }
+            }
+
+        }
 
 
     }

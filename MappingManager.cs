@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SDL2;
 using System.IO;
 using Newtonsoft.Json;
+using System.ComponentModel;
 
 namespace GameControllers2MIDI
 {
@@ -10,7 +11,7 @@ namespace GameControllers2MIDI
     {
         // 매핑 데이터 저장
         // Mapping 클래스 사용
-        private List<Mapping> mappings = new List<Mapping>();
+        private BindingList<Mapping> mappings = new BindingList<Mapping>();
 
 
         // 생성자
@@ -54,7 +55,7 @@ namespace GameControllers2MIDI
             return axisMappings;
         }
 
-        public List<Mapping> GetAllMappings()
+        public BindingList<Mapping> GetAllMappings()
         {
             return mappings;
         }
@@ -111,11 +112,11 @@ namespace GameControllers2MIDI
         // 또는 input과 value를 받아서 삭제
         public void RemoveMapping(Mapping mapping)
         {
-            Mapping.usingInputs[mapping.Input]--;
-            if (Mapping.usingInputs[mapping.Input] < 0)
-            {
-                Mapping.usingInputs.Remove(mapping.Input);
-            }
+            //Mapping.usingInputs[mapping.Input]--;
+            //if (Mapping.usingInputs[mapping.Input] < 0)
+            //{
+            //    Mapping.usingInputs.Remove(mapping.Input);
+            //}
             mappings.Remove(mapping);
         }
         
@@ -131,23 +132,34 @@ namespace GameControllers2MIDI
             }
         }
 
+        public void RemoveMapping(int index)
+        {
+            mappings.RemoveAt(index);
+        }
+
         public void ModifyMapping(Mapping mapping, SDL.SDL_GameControllerButton button)
         {
             if (mapping.InputType == InputType.Axis)
             {
-                Mapping.usingInputs[mapping.Input]--;
-                if (Mapping.usingInputs[mapping.Input] < 0)
-                {
-                    Mapping.usingInputs.Remove(mapping.Input);
-                }
-                if (!Mapping.usingInputs.ContainsKey(button))
-                {
-                    Mapping.usingInputs[button] = 0;
-                }
-                else
-                {
-                    Mapping.usingInputs[button]++;
-                }
+                //Mapping.usingInputs[mapping.Input]--;
+                //if (Mapping.usingInputs[mapping.Input] < 0)
+                //{
+                //    Mapping.usingInputs.Remove(mapping.Input);
+                //}
+                //if (!Mapping.usingInputs.ContainsKey(button))
+                //{
+                //    Mapping.usingInputs[button] = 0;
+                //}
+                //else
+                //{
+                //    Mapping.usingInputs[button]++;
+                //}
+
+                mapping.Input = button;
+                mapping.InputType = InputType.Button;
+                mapping.Map = Map.Note;
+                mapping.Value = 60;
+                mapping.ModifyNoteProperty(60);
             }
             else if (mapping.Input == button)
             {
@@ -155,28 +167,23 @@ namespace GameControllers2MIDI
             }
             else
             {
-                Mapping.usingInputs[mapping.Input]--;
-                if (Mapping.usingInputs[mapping.Input] < 0)
-                {
-                    Mapping.usingInputs.Remove(mapping.Input);
-                }
+                //Mapping.usingInputs[mapping.Input]--;
+                //if (Mapping.usingInputs[mapping.Input] < 0)
+                //{
+                //    Mapping.usingInputs.Remove(mapping.Input);
+                //}
 
-                if (!Mapping.usingInputs.ContainsKey(button))
-                {
-                    Mapping.usingInputs[button] = 0;
-                }
-                else
-                {
-                    Mapping.usingInputs[button]++;
-                }
-            }
-            mapping.Input = button;
-            if (mapping.InputType == InputType.Axis)
-            {
-                mapping.InputType = InputType.Button;
-                mapping.Map = Map.Note;
-                mapping.Value = 60;
-                mapping.ModifyNoteProperty(60);
+                //if (!Mapping.usingInputs.ContainsKey(button))
+                //{
+                //    Mapping.usingInputs[button] = 0;
+                //}
+                //else
+                //{
+                //    Mapping.usingInputs[button]++;
+                //}
+
+                mapping.Input = button;
+
             }
         }
 
@@ -185,20 +192,24 @@ namespace GameControllers2MIDI
         {
             if (mapping.InputType == InputType.Button)
             {
-                Mapping.usingInputs[mapping.Input]--;
-                if (Mapping.usingInputs[mapping.Input] < 0)
-                {
-                    Mapping.usingInputs.Remove(mapping.Input);
-                }
+                //Mapping.usingInputs[mapping.Input]--;
+                //if (Mapping.usingInputs[mapping.Input] < 0)
+                //{
+                //    Mapping.usingInputs.Remove(mapping.Input);
+                //}
 
-                if (!Mapping.usingInputs.ContainsKey(axis))
-                {
-                    Mapping.usingInputs[axis] = 0;
-                }
-                else
-                {
-                    Mapping.usingInputs[axis]++;
-                }
+                //if (!Mapping.usingInputs.ContainsKey(axis))
+                //{
+                //    Mapping.usingInputs[axis] = 0;
+                //}
+                //else
+                //{
+                //    Mapping.usingInputs[axis]++;
+                //}
+                mapping.Input = axis;
+                mapping.InputType = InputType.Axis;
+                mapping.Map = GameControllers2MIDI.Map.CC;
+                mapping.Value = 1;
             }
             else if (mapping.Input == axis)
             {
@@ -206,29 +217,26 @@ namespace GameControllers2MIDI
             }
             else
             {
-                Mapping.usingInputs[mapping.Input]--;
-                if (Mapping.usingInputs[mapping.Input] < 0)
-                {
-                    Mapping.usingInputs.Remove(mapping.Input);
-                }
+                //Mapping.usingInputs[mapping.Input]--;
+                //if (Mapping.usingInputs[mapping.Input] < 0)
+                //{
+                //    Mapping.usingInputs.Remove(mapping.Input);
+                //}
 
-                if (!Mapping.usingInputs.ContainsKey(axis))
-                {
-                    Mapping.usingInputs[axis] = 0;
-                }
-                else
-                {
-                    Mapping.usingInputs[axis]++;
-                }
-            }
-            mapping.Input = axis;
+                //if (!Mapping.usingInputs.ContainsKey(axis))
+                //{
+                //    Mapping.usingInputs[axis] = 0;
+                //}
+                //else
+                //{
+                //    Mapping.usingInputs[axis]++;
+                //}
 
-            if (mapping.InputType == InputType.Button)
-            {
-                mapping.InputType = InputType.Axis;
-                mapping.Map = GameControllers2MIDI.Map.CC;
-                mapping.Value = 1;
+                mapping.Input = axis;
+
             }
+            
+
         }
 
 

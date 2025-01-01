@@ -497,45 +497,137 @@ namespace GameControllers2MIDI
             {
                 var mapping = mappings[e.RowIndex];
                 DataGridViewCell cell;
+                DataGridViewComboBoxCell comboBoxCell;
+                DataGridViewCheckBoxCell checkBoxCell;
 
-                if (mapping.InputType == InputType.Button)
+                foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
                 {
-                    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
+                    switch (c.OwningColumn.Name)
                     {
-                        if (c.OwningColumn.Name == "isUsingAbsDataGridViewCheckBoxColumn")
-                        {
-                            c.ReadOnly = true;
-                            c.Style.BackColor = Color.LightGray;
-                            c.Style.ForeColor = Color.DarkGray;
-                        }
-                        else
-                        {
+                        case "keyDataGridViewTextBoxColumn":
+                        case "octDataGridViewTextBoxColumn":
+                            if (mapping.InputType == InputType.Axis)
+                            {
+                                c.ReadOnly = true;
+                                comboBoxCell = (DataGridViewComboBoxCell)c;
+                                comboBoxCell.FlatStyle = FlatStyle.Flat;
+                            }
+                            break;
+                        case "velocityDataGridViewTextBoxColumn":
+                            if (mapping.InputType == InputType.Axis)
+                            {
+                                c.ReadOnly = true;
+                                c.Style.BackColor = Color.LightGray;
+                                c.Style.ForeColor = Color.DarkGray;
+                            }
+                            break;
+                        case "isUsingAbsDataGridViewCheckBoxColumn":
+                            if (mapping.InputType == InputType.Button)
+                            {
+                                c.ReadOnly = true;
+                                checkBoxCell = (DataGridViewCheckBoxCell)c;
+                                checkBoxCell.Style.BackColor = Color.LightGray;
+                                checkBoxCell.Style.ForeColor = Color.DarkGray;
+                                checkBoxCell.FlatStyle = FlatStyle.Flat;
+                            }
+                            break;
+                        default:
                             c.ReadOnly = false;
                             c.Style.BackColor = Color.White;
                             c.Style.ForeColor = Color.Black;
-                        }
+                            switch (c.OwningColumn.Name)
+                            {
+                                case "keyDataGridViewTextBoxColumn":
+                                case "octDataGridViewTextBoxColumn":
+                                    comboBoxCell = (DataGridViewComboBoxCell)c;
+                                    comboBoxCell.FlatStyle = FlatStyle.Standard;
+                                    break;
+                                case "isUsingAbsDataGridViewCheckBoxColumn":
+                                    checkBoxCell = (DataGridViewCheckBoxCell)c;
+                                    checkBoxCell.FlatStyle = FlatStyle.Standard;
+                                    break;
+                            }
+                            break;
                     }
-
                 }
-                else if (mapping.InputType == InputType.Axis)
-                {
-                    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
-                    {
-                        if (c.OwningColumn.Name == "keyDataGridViewTextBoxColumn" || c.OwningColumn.Name == "octDataGridViewTextBoxColumn" || c.OwningColumn.Name == "velocityDataGridViewTextBoxColumn")
-                        {
-                            c.ReadOnly = true;
-                            c.Style.BackColor = Color.LightGray;
-                            c.Style.ForeColor = Color.DarkGray;
-                        }
-                        else
-                        {
-                            c.ReadOnly = false;
-                            c.Style.BackColor = Color.White;
-                            c.Style.ForeColor = Color.Black;
-                        }
-                    }
 
-                }
+
+                //if (mapping.InputType == InputType.Button)
+                //{
+                //    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
+                //    {
+
+                //        switch (c.OwningColumn.Name)
+                //        {
+                //            case "isUsingAbsDataGridViewTextBoxColumn":
+                //                c.ReadOnly = true;
+                //                checkBoxCell = (DataGridViewCheckBoxCell)c;
+                //                checkBoxCell.Style.BackColor = Color.LightGray;
+                //                checkBoxCell.Style.ForeColor = Color.DarkGray;
+                //                checkBoxCell.FlatStyle = FlatStyle.Flat;
+                //                break;
+                //            default:
+                //                c.ReadOnly = false;
+                //                c.Style.BackColor = Color.White;
+                //                c.Style.ForeColor = Color.Black;
+                //                switch (c.OwningColumn.Name)
+                //                {
+                //                    case "keyDataGridViewTextBoxColumn":
+                //                    case "octDataGridViewTextBoxColumn":
+                //                        comboBoxCell = (DataGridViewComboBoxCell)c;
+                //                        comboBoxCell.FlatStyle = FlatStyle.Standard;
+                //                        break;
+                //                    case "isUsingAbsDataGridViewTextBoxColumn":
+                //                        checkBoxCell = (DataGridViewCheckBoxCell)c;
+                //                        checkBoxCell.FlatStyle = FlatStyle.Standard;
+                //                        break;
+
+                //                }
+                //                break;
+                //        }
+
+                //    }
+
+                //}
+                //else if (mapping.InputType == InputType.Axis)
+                //{
+                //    foreach (DataGridViewCell c in dataGridView.Rows[e.RowIndex].Cells)
+                //    {
+                //        switch (c.OwningColumn.Name)
+                //        {
+                //            case "keyDataGridViewTextBoxColumn":
+                //            case "octDataGridViewTextBoxColumn":
+                //                c.ReadOnly = true;
+                //                comboBoxCell = (DataGridViewComboBoxCell)c;
+                //                comboBoxCell.FlatStyle = FlatStyle.Flat;
+                //                break;
+                //            case "velocityDataGridViewTextBoxColumn":
+                //                c.ReadOnly = true;
+                //                c.Style.BackColor = Color.LightGray;
+                //                c.Style.ForeColor = Color.DarkGray;
+                //                break;
+                //            default:
+                //                c.ReadOnly = false;
+                //                c.Style.BackColor = Color.White;
+                //                c.Style.ForeColor = Color.Black;
+                //                switch (c.OwningColumn.Name)
+                //                {
+                //                    case "keyDataGridViewTextBoxColumn":
+                //                    case "octDataGridViewTextBoxColumn":
+                //                        comboBoxCell = (DataGridViewComboBoxCell)c;
+                //                        comboBoxCell.FlatStyle = FlatStyle.Standard;
+                //                        break;
+                //                    case "isUsingAbsDataGridViewTextBoxColumn":
+                //                        checkBoxCell = (DataGridViewCheckBoxCell)c;
+                //                        checkBoxCell.FlatStyle = FlatStyle.Standard;
+                //                        break;
+
+                //                }
+                //                break;
+                //        }
+                //    }
+
+                //}
             }
 
         }

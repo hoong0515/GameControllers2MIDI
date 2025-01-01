@@ -1,4 +1,6 @@
-﻿using SDL2;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using SDL2;
 
 namespace GameControllers2MIDI
 {
@@ -24,11 +26,13 @@ namespace GameControllers2MIDI
 
     // 매핑 클래스
     // 입력에 대한 매핑, 값, 반전 여부, 음정, 옥타브, Velocity를 저장
-    public class Mapping
+    public class Mapping : INotifyPropertyChanged
+    //public class Mapping
     {
-        public static Dictionary<dynamic, int> usingInputs = new Dictionary<dynamic, int>();
-        private InputType inputType;
-        private dynamic input;
+        //public static Dictionary<dynamic, int> usingInputs = new Dictionary<dynamic, int>();
+        private InputType inputType = InputType.Button;
+        private dynamic input = SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A;
+
         private Map map = Map.Note;
         private int value = 60;
         private bool isInverted = false;
@@ -37,18 +41,36 @@ namespace GameControllers2MIDI
         private int velocity = 100;
         private bool isUsingAbs = false;
 
+
+        private string inputName = "BUTTON_A";
+        private string mapName = "Note";
+        private string keyName = "C";
+        private string octName = "4";
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
+
+
         public Mapping()
         {
-            this.inputType = InputType.Button;
-            this.input = SDL.SDL_GameControllerButton.SDL_CONTROLLER_BUTTON_A;
-            if(!usingInputs.ContainsKey(this.input))
-            {
-                usingInputs[this.input] = 0;
-            }
-            else
-            {
-                usingInputs[this.input]++;
-            }
+            this.inputName = this.input.ToString().Substring(15);
+            this.mapName = this.map.ToString();
+            this.keyName = this.key.ToString();
+            this.octName = this.oct.ToString();
+            //if(!usingInputs.ContainsKey(this.input))
+            //{
+            //    usingInputs[this.input] = 0;
+            //}
+            //else
+            //{
+            //    usingInputs[this.input]++;
+            //}
 
         }
         public Mapping(dynamic input, Map map, int value = 1, bool isInverted = false, Key key = Key.C, int oct = 4, int velocity = 100, bool isUsingAbs = false)
@@ -62,14 +84,20 @@ namespace GameControllers2MIDI
             this.oct = oct;
             this.velocity = velocity;
             this.isUsingAbs = isUsingAbs;
-            if (!usingInputs.ContainsKey(this.input))
-            {
-                usingInputs[this.input] = 0;
-            }
-            else
-            {
-                usingInputs[this.input]++;
-            }
+
+            this.inputName = this.input.ToString().Substring(15);
+            this.mapName = this.map.ToString();
+            this.keyName = this.key.ToString();
+            this.octName = this.oct.ToString();
+
+            //if (!usingInputs.ContainsKey(this.input))
+            //{
+            //    usingInputs[this.input] = 0;
+            //}
+            //else
+            //{
+            //    usingInputs[this.input]++;
+            //}
         }
 
         public Mapping(SDL.SDL_GameControllerButton input, Map map, Key key = Key.C, int oct = 4, int velocity = 100)
@@ -81,14 +109,19 @@ namespace GameControllers2MIDI
             this.key = key;
             this.oct = oct;
             this.velocity = velocity;
-            if (!usingInputs.ContainsKey(this.input))
-            {
-                usingInputs[this.input] = 0;
-            }
-            else
-            {
-                usingInputs[this.input]++;
-            }
+
+            this.inputName = this.input.ToString().Substring(15);
+            this.mapName = this.map.ToString();
+            this.keyName = this.key.ToString();
+            this.octName = this.oct.ToString();
+            //if (!usingInputs.ContainsKey(this.input))
+            //{
+            //    usingInputs[this.input] = 0;
+            //}
+            //else
+            //{
+            //    usingInputs[this.input]++;
+            //}
         }
 
         public Mapping(SDL.SDL_GameControllerButton input, Map map, int value, int velocity = 100)
@@ -99,14 +132,19 @@ namespace GameControllers2MIDI
             this.value = value;
             (this.key, this.oct) = ConvertTools.CalculateKeyAndOctaveFromNote(value);
             this.velocity = velocity;
-            if (!usingInputs.ContainsKey(this.input))
-            {
-                usingInputs[this.input] = 0;
-            }
-            else
-            {
-                usingInputs[this.input]++;
-            }
+
+            this.inputName = this.input.ToString().Substring(15);
+            this.mapName = this.map.ToString();
+            this.keyName = this.key.ToString();
+            this.octName = this.oct.ToString();
+            //if (!usingInputs.ContainsKey(this.input))
+            //{
+            //    usingInputs[this.input] = 0;
+            //}
+            //else
+            //{
+            //    usingInputs[this.input]++;
+            //}
         }
 
         public Mapping(SDL.SDL_GameControllerAxis input, Map map, int value = 1, bool isInverted = false, bool isUsingAbs = false)
@@ -117,15 +155,22 @@ namespace GameControllers2MIDI
             this.value = value;
             this.isInverted = isInverted;
             this.isUsingAbs = isUsingAbs;
-            if (!usingInputs.ContainsKey(this.input))
-            {
-                usingInputs[this.input] = 0;
-            }
-            else
-            {
-                usingInputs[this.input]++;
-            }
+
+            this.inputName = this.input.ToString().Substring(15);
+            this.mapName = this.map.ToString();
+            this.keyName = this.key.ToString();
+            this.octName = this.oct.ToString();
+            //if (!usingInputs.ContainsKey(this.input))
+            //{
+            //    usingInputs[this.input] = 0;
+            //}
+            //else
+            //{
+            //    usingInputs[this.input]++;
+            //}
         }
+
+
 
         public InputType InputType
         {
@@ -135,44 +180,131 @@ namespace GameControllers2MIDI
 
         public dynamic Input
         {
-            get { return input; } set { input = value; }
+            get { return input; } 
+            set 
+            { 
+                input = value; 
+                InputType newInputType = typeof(SDL.SDL_GameControllerButton) == value.GetType() ? InputType.Button : InputType.Axis;
+                if (inputType != newInputType)
+                {
+                    if (newInputType == InputType.Button)
+                    {
+                        SetButtonDefalut();
+                    }
+                    else
+                    {
+                        SetAxisDefalut();
+                    }
+                    inputType = newInputType;
+
+                }
+                this.InputName = value.ToString().Substring(15); 
+                NotifyPropertyChanged("Input");
+            }
         }
-        
+
         public Map Map
         {
-            get { return map; } set { map = value; }
+            get { return map; } set { map = value; this.MapName = value.ToString(); NotifyPropertyChanged("Map"); }
         }
 
         public int Value
         {
-            get { return value; } set { this.value = value; }
+            get { return value; } 
+            set 
+            { 
+                this.value = value;
+                (this.Key, this.Oct) = ConvertTools.CalculateKeyAndOctaveFromNote(value);
+                NotifyPropertyChanged("Value");
+            }
         }
 
         public bool IsInverted
         {
-            get { return isInverted; }  set { isInverted = value; }
+            get { return isInverted; }  set { isInverted = value; NotifyPropertyChanged("IsInverted"); }
         }
 
         public Key Key
         {
-            get { return key; } set { key = value; }
+            get { return key; } 
+            set 
+            { 
+                key = value; 
+                if (keyName != value.ToString())
+                {
+                    this.KeyName = value.ToString();
+                }
+                this.value = ConvertTools.CalculateNoteFromKeyAndOctave(key, oct);
+                NotifyPropertyChanged("Key");
+                NotifyPropertyChanged("Value");
+            }
         }
 
         public int Oct
         {
-            get { return oct; } set { oct = value; }
+            get { return oct; } 
+            set 
+            { 
+                oct = value;
+                if (octName != value.ToString())
+                {
+                    this.OctName = value.ToString();
+                }
+                this.value = ConvertTools.CalculateNoteFromKeyAndOctave(key, oct);
+                NotifyPropertyChanged("Oct");
+                NotifyPropertyChanged("Value");
+            }
         }
 
         public int Velocity
         {
-            get { return velocity; }    set { velocity = value; }
+            get { return velocity; }    set { velocity = value; NotifyPropertyChanged("Velocity"); }
         }
 
         public bool IsUsingAbs
         {
             get { return isUsingAbs; }
-            set { isUsingAbs = value; }
+            set { isUsingAbs = value; NotifyPropertyChanged("IsUsingAbs"); }
         }
+
+
+
+        public string InputName
+        {
+            get { return inputName; }
+            set { inputName = value; NotifyPropertyChanged("InputName"); }
+        }
+
+        public string MapName
+        {
+            get { return mapName; }
+            set { mapName = value; Enum.TryParse<Map>(value, out map); NotifyPropertyChanged("MapName"); }
+        }
+
+        public string KeyName
+        {
+            get { return keyName; }
+            set 
+            {   keyName = value;
+                Key newKey;
+                Enum.TryParse<Key>(value, out newKey);
+                this.Key = newKey;
+                NotifyPropertyChanged("KeyName");
+            }
+        }
+
+        public string OctName
+        {
+            get { return octName; }
+            set 
+            { 
+                octName = value; 
+                this.Oct = int.Parse(value);
+                NotifyPropertyChanged("OctName");
+            }
+        }
+
+
 
         public Dictionary<string, dynamic> ToDictionary(bool getEnumName = false)
         {
@@ -222,6 +354,7 @@ namespace GameControllers2MIDI
                 this.value = value;
                 (this.key, this.oct) = ConvertTools.CalculateKeyAndOctaveFromNote(value);
             }
+            NotifyPropertyChanged();
         }
 
         public void ModifyNoteProperty(int value)
@@ -231,6 +364,7 @@ namespace GameControllers2MIDI
                 this.value = value;
                 (this.key, this.oct) = ConvertTools.CalculateKeyAndOctaveFromNote(value);
             }
+            NotifyPropertyChanged();
         }
 
         public void ModifyNoteProperty(Key key, int oct)
@@ -241,6 +375,27 @@ namespace GameControllers2MIDI
                 this.oct = oct;
                 this.value = ConvertTools.CalculateNoteFromKeyAndOctave(key, oct);
             }
+            NotifyPropertyChanged();
         }
+
+        private void SetButtonDefalut()
+        {
+            this.Map = Map.Note;
+            this.Value = 60;
+            this.IsInverted = false;
+            this.Key = Key.C;
+            this.Oct = 4;
+            this.Velocity = 100;
+            this.IsUsingAbs = false;
+        }
+
+        private void SetAxisDefalut()
+        {
+            this.Map = Map.CC;
+            this.Value = 1;
+            this.IsInverted = false;
+            this.IsUsingAbs = false;
+        }
+
     }
 }

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             controllerDropdown = new ComboBox();
             midiDeviceDropdown = new ComboBox();
             labelControllerComboBox = new Label();
@@ -36,19 +37,21 @@
             loadMappingButton = new Button();
             saveMappingButton = new Button();
             dataGridView = new DataGridView();
+            inputDataGridViewTextBoxColumn = new DataGridViewButtonColumn();
+            mapDataGridViewTextBoxColumn = new DataGridViewComboBoxColumn();
+            valueDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            isInvertedDataGridViewCheckBoxColumn = new DataGridViewCheckBoxColumn();
+            keyDataGridViewTextBoxColumn = new DataGridViewComboBoxColumn();
+            octDataGridViewTextBoxColumn = new DataGridViewComboBoxColumn();
+            velocityDataGridViewTextBoxColumn = new DataGridViewTextBoxColumn();
+            isUsingAbsDataGridViewCheckBoxColumn = new DataGridViewCheckBoxColumn();
+            mappingBindingSource = new BindingSource(components);
             deleteButton = new Button();
             addButton = new Button();
             midiChannelDropdown = new ComboBox();
             midiChanelDropdownLabel = new Label();
-            Input = new DataGridViewButtonColumn();
-            Map = new DataGridViewComboBoxColumn();
-            Value = new DataGridViewTextBoxColumn();
-            isInverted = new DataGridViewCheckBoxColumn();
-            Key = new DataGridViewComboBoxColumn();
-            Octave = new DataGridViewComboBoxColumn();
-            Velocity = new DataGridViewTextBoxColumn();
-            isUsingAbs = new DataGridViewCheckBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dataGridView).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)mappingBindingSource).BeginInit();
             SuspendLayout();
             // 
             // controllerDropdown
@@ -122,16 +125,85 @@
             // 
             dataGridView.AllowUserToAddRows = false;
             dataGridView.AllowUserToDeleteRows = false;
-            dataGridView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridView.AutoGenerateColumns = false;
             dataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridView.Columns.AddRange(new DataGridViewColumn[] { Input, Map, Value, isInverted, Key, Octave, Velocity, isUsingAbs });
+            dataGridView.Columns.AddRange(new DataGridViewColumn[] { inputDataGridViewTextBoxColumn, mapDataGridViewTextBoxColumn, valueDataGridViewTextBoxColumn, isInvertedDataGridViewCheckBoxColumn, keyDataGridViewTextBoxColumn, octDataGridViewTextBoxColumn, velocityDataGridViewTextBoxColumn, isUsingAbsDataGridViewCheckBoxColumn });
+            dataGridView.DataSource = mappingBindingSource;
             dataGridView.Location = new Point(338, 65);
             dataGridView.MultiSelect = false;
             dataGridView.Name = "dataGridView";
             dataGridView.Size = new Size(854, 449);
             dataGridView.TabIndex = 7;
             dataGridView.CellContentClick += dataGridView_CellContentClick;
-            dataGridView.CellEndEdit += dataGridView_CellEndEdit;
+            dataGridView.CellEnter += DataGridView_CellEnter;
+            dataGridView.CellLeave += DataGridView_CellLeave;
+            dataGridView.EditingControlShowing += DataGridView_EditingControlShowing;
+            dataGridView.RowPostPaint += DataGridView_RowPostPaint;
+            // 
+            // inputDataGridViewTextBoxColumn
+            // 
+            inputDataGridViewTextBoxColumn.DataPropertyName = "InputName";
+            inputDataGridViewTextBoxColumn.HeaderText = "Input";
+            inputDataGridViewTextBoxColumn.Name = "inputDataGridViewTextBoxColumn";
+            inputDataGridViewTextBoxColumn.ReadOnly = true;
+            inputDataGridViewTextBoxColumn.Resizable = DataGridViewTriState.True;
+            inputDataGridViewTextBoxColumn.SortMode = DataGridViewColumnSortMode.Automatic;
+            // 
+            // mapDataGridViewTextBoxColumn
+            // 
+            mapDataGridViewTextBoxColumn.DataPropertyName = "MapName";
+            mapDataGridViewTextBoxColumn.HeaderText = "Map";
+            mapDataGridViewTextBoxColumn.Items.AddRange(new object[] { "Note", "CC", "Pitchbend" });
+            mapDataGridViewTextBoxColumn.Name = "mapDataGridViewTextBoxColumn";
+            mapDataGridViewTextBoxColumn.Resizable = DataGridViewTriState.True;
+            mapDataGridViewTextBoxColumn.SortMode = DataGridViewColumnSortMode.Automatic;
+            // 
+            // valueDataGridViewTextBoxColumn
+            // 
+            valueDataGridViewTextBoxColumn.DataPropertyName = "Value";
+            valueDataGridViewTextBoxColumn.HeaderText = "Value";
+            valueDataGridViewTextBoxColumn.Name = "valueDataGridViewTextBoxColumn";
+            // 
+            // isInvertedDataGridViewCheckBoxColumn
+            // 
+            isInvertedDataGridViewCheckBoxColumn.DataPropertyName = "IsInverted";
+            isInvertedDataGridViewCheckBoxColumn.HeaderText = "IsInverted";
+            isInvertedDataGridViewCheckBoxColumn.Name = "isInvertedDataGridViewCheckBoxColumn";
+            // 
+            // keyDataGridViewTextBoxColumn
+            // 
+            keyDataGridViewTextBoxColumn.DataPropertyName = "KeyName";
+            keyDataGridViewTextBoxColumn.HeaderText = "Key";
+            keyDataGridViewTextBoxColumn.Items.AddRange(new object[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" });
+            keyDataGridViewTextBoxColumn.Name = "keyDataGridViewTextBoxColumn";
+            keyDataGridViewTextBoxColumn.Resizable = DataGridViewTriState.True;
+            keyDataGridViewTextBoxColumn.SortMode = DataGridViewColumnSortMode.Automatic;
+            // 
+            // octDataGridViewTextBoxColumn
+            // 
+            octDataGridViewTextBoxColumn.DataPropertyName = "OctName";
+            octDataGridViewTextBoxColumn.HeaderText = "Oct";
+            octDataGridViewTextBoxColumn.Items.AddRange(new object[] { "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" });
+            octDataGridViewTextBoxColumn.Name = "octDataGridViewTextBoxColumn";
+            octDataGridViewTextBoxColumn.Resizable = DataGridViewTriState.True;
+            octDataGridViewTextBoxColumn.SortMode = DataGridViewColumnSortMode.Automatic;
+            // 
+            // velocityDataGridViewTextBoxColumn
+            // 
+            velocityDataGridViewTextBoxColumn.DataPropertyName = "Velocity";
+            velocityDataGridViewTextBoxColumn.HeaderText = "Velocity";
+            velocityDataGridViewTextBoxColumn.Name = "velocityDataGridViewTextBoxColumn";
+            // 
+            // isUsingAbsDataGridViewCheckBoxColumn
+            // 
+            isUsingAbsDataGridViewCheckBoxColumn.DataPropertyName = "IsUsingAbs";
+            isUsingAbsDataGridViewCheckBoxColumn.HeaderText = "IsUsingAbs";
+            isUsingAbsDataGridViewCheckBoxColumn.Name = "isUsingAbsDataGridViewCheckBoxColumn";
+            // 
+            // mappingBindingSource
+            // 
+            mappingBindingSource.DataSource = typeof(Mapping);
+            mappingBindingSource.CurrentChanged += mappingBindingSource_CurrentChanged;
             // 
             // deleteButton
             // 
@@ -174,52 +246,6 @@
             midiChanelDropdownLabel.TabIndex = 11;
             midiChanelDropdownLabel.Text = "MIDI Channel";
             // 
-            // Input
-            // 
-            Input.HeaderText = "Input";
-            Input.Name = "Input";
-            Input.Resizable = DataGridViewTriState.True;
-            // 
-            // Map
-            // 
-            Map.HeaderText = "Map";
-            Map.Items.AddRange(new object[] { "Note", "CC", "Pitchbend" });
-            Map.Name = "Map";
-            // 
-            // Value
-            // 
-            Value.HeaderText = "Value";
-            Value.Name = "Value";
-            Value.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // isInverted
-            // 
-            isInverted.HeaderText = "isInverted";
-            isInverted.Name = "isInverted";
-            // 
-            // Key
-            // 
-            Key.HeaderText = "Key";
-            Key.Items.AddRange(new object[] { "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B" });
-            Key.Name = "Key";
-            // 
-            // Octave
-            // 
-            Octave.HeaderText = "Octave";
-            Octave.Items.AddRange(new object[] { "-2", "-1", "0", "1", "2", "3", "4", "5", "6", "7", "8" });
-            Octave.Name = "Octave";
-            // 
-            // Velocity
-            // 
-            Velocity.HeaderText = "Velocity";
-            Velocity.Name = "Velocity";
-            Velocity.SortMode = DataGridViewColumnSortMode.NotSortable;
-            // 
-            // isUsingAbs
-            // 
-            isUsingAbs.HeaderText = "isUsingAbs";
-            isUsingAbs.Name = "isUsingAbs";
-            // 
             // UIManager
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -241,6 +267,7 @@
             Text = "Controller2MIDI";
             Load += InitializeDropdowns;
             ((System.ComponentModel.ISupportInitialize)dataGridView).EndInit();
+            ((System.ComponentModel.ISupportInitialize)mappingBindingSource).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -259,13 +286,14 @@
         private Button addButton;
         private ComboBox midiChannelDropdown;
         private Label midiChanelDropdownLabel;
-        private DataGridViewButtonColumn Input;
-        private DataGridViewComboBoxColumn Map;
-        private DataGridViewTextBoxColumn Value;
-        private DataGridViewCheckBoxColumn isInverted;
-        private DataGridViewComboBoxColumn Key;
-        private DataGridViewComboBoxColumn Octave;
-        private DataGridViewTextBoxColumn Velocity;
-        private DataGridViewCheckBoxColumn isUsingAbs;
+        private BindingSource mappingBindingSource;
+        private DataGridViewButtonColumn inputDataGridViewTextBoxColumn;
+        private DataGridViewComboBoxColumn mapDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn valueDataGridViewTextBoxColumn;
+        private DataGridViewCheckBoxColumn isInvertedDataGridViewCheckBoxColumn;
+        private DataGridViewComboBoxColumn keyDataGridViewTextBoxColumn;
+        private DataGridViewComboBoxColumn octDataGridViewTextBoxColumn;
+        private DataGridViewTextBoxColumn velocityDataGridViewTextBoxColumn;
+        private DataGridViewCheckBoxColumn isUsingAbsDataGridViewCheckBoxColumn;
     }
 }

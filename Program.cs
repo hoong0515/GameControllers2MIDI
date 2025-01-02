@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using SDL2;
+﻿using SDL2;
 
 
 namespace GameControllers2MIDI

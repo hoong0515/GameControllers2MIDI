@@ -19,8 +19,8 @@ namespace GameControllers2MIDI
 
     public enum Key
     {
-        C = 0,        Db = 1,        D = 2,        Eb = 3,        E = 4,        F = 5,
-        Gb = 6,        G = 7,        Ab = 8,        A = 9,        Bb = 10,        B = 11
+        C = 0, Db = 1, D = 2, Eb = 3, E = 4, F = 5,
+        Gb = 6, G = 7, Ab = 8, A = 9, Bb = 10, B = 11
     }
 
 
@@ -180,10 +180,10 @@ namespace GameControllers2MIDI
 
         public dynamic Input
         {
-            get { return input; } 
-            set 
-            { 
-                input = value; 
+            get { return input; }
+            set
+            {
+                input = value;
                 InputType newInputType = typeof(SDL.SDL_GameControllerButton) == value.GetType() ? InputType.Button : InputType.Axis;
                 if (inputType != newInputType)
                 {
@@ -198,21 +198,22 @@ namespace GameControllers2MIDI
                     inputType = newInputType;
 
                 }
-                this.InputName = value.ToString().Substring(15); 
+                this.InputName = value.ToString().Substring(15);
                 NotifyPropertyChanged("Input");
             }
         }
 
         public Map Map
         {
-            get { return map; } set { map = value; this.MapName = value.ToString(); NotifyPropertyChanged("Map"); }
+            get { return map; }
+            set { map = value; this.MapName = value.ToString(); NotifyPropertyChanged("Map"); }
         }
 
         public int Value
         {
-            get { return value; } 
-            set 
-            { 
+            get { return value; }
+            set
+            {
                 this.value = value;
                 (this.Key, this.Oct) = ConvertTools.CalculateKeyAndOctaveFromNote(value);
                 NotifyPropertyChanged("Value");
@@ -221,15 +222,16 @@ namespace GameControllers2MIDI
 
         public bool IsInverted
         {
-            get { return isInverted; }  set { isInverted = value; NotifyPropertyChanged("IsInverted"); }
+            get { return isInverted; }
+            set { isInverted = value; NotifyPropertyChanged("IsInverted"); }
         }
 
         public Key Key
         {
-            get { return key; } 
-            set 
-            { 
-                key = value; 
+            get { return key; }
+            set
+            {
+                key = value;
                 if (keyName != value.ToString())
                 {
                     this.KeyName = value.ToString();
@@ -242,9 +244,9 @@ namespace GameControllers2MIDI
 
         public int Oct
         {
-            get { return oct; } 
-            set 
-            { 
+            get { return oct; }
+            set
+            {
                 oct = value;
                 if (octName != value.ToString())
                 {
@@ -258,7 +260,8 @@ namespace GameControllers2MIDI
 
         public int Velocity
         {
-            get { return velocity; }    set { velocity = value; NotifyPropertyChanged("Velocity"); }
+            get { return velocity; }
+            set { velocity = value; NotifyPropertyChanged("Velocity"); }
         }
 
         public bool IsUsingAbs
@@ -284,8 +287,9 @@ namespace GameControllers2MIDI
         public string KeyName
         {
             get { return keyName; }
-            set 
-            {   keyName = value;
+            set
+            {
+                keyName = value;
                 Key newKey;
                 Enum.TryParse<Key>(value, out newKey);
                 this.Key = newKey;
@@ -296,9 +300,9 @@ namespace GameControllers2MIDI
         public string OctName
         {
             get { return octName; }
-            set 
-            { 
-                octName = value; 
+            set
+            {
+                octName = value;
                 this.Oct = int.Parse(value);
                 NotifyPropertyChanged("OctName");
             }
@@ -323,7 +327,8 @@ namespace GameControllers2MIDI
                     { "velocity", velocity },
                     { "isUsingAbs", isUsingAbs }
                 };
-            } else
+            }
+            else
             {
                 dict = new Dictionary<string, dynamic>
                 {

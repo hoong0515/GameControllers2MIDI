@@ -10,6 +10,8 @@
     <NuGetAuditLevel>moderate</NuGetAuditLevel>
     <NuGetAudit>True</NuGetAudit>
     <UseWindowsForms>True</UseWindowsForms>
+    <DebugType>embedded</DebugType>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -28,7 +30,5 @@
     <PackageReference Include="ppy.SDL2-CS" Version="1.0.82" />
     <PackageReference Include="sdl2.nuget" Version="2.30.9" />
   </ItemGroup>
-
-
 
 </Project>

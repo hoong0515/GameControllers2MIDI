@@ -204,7 +204,7 @@
             // mappingBindingSource
             // 
             mappingBindingSource.DataSource = typeof(Mapping);
-            mappingBindingSource.CurrentChanged += mappingBindingSource_CurrentChanged;
+            mappingBindingSource.CurrentChanged += MappingBindingSource_CurrentChanged;
             // 
             // deleteButton
             // 
@@ -265,7 +265,7 @@
             Controls.Add(midiDeviceDropdown);
             Controls.Add(controllerDropdown);
             Name = "UIManager";
-            Text = "Controller2MIDI";
+            Text = "GameController2MIDI";
             Load += InitializeDropdowns;
             ((System.ComponentModel.ISupportInitialize)dataGridView).EndInit();
             ((System.ComponentModel.ISupportInitialize)mappingBindingSource).EndInit();

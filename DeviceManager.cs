@@ -1,12 +1,9 @@
 ﻿using SDL2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
 
 namespace GameControllers2MIDI
 
-{public class DeviceManager
+{
+    public class DeviceManager
     {
         private Dictionary<int, IntPtr> connectedControllers = new Dictionary<int, IntPtr>();
         private IntPtr activeController = IntPtr.Zero;
@@ -114,7 +111,7 @@ namespace GameControllers2MIDI
             {
                 short axisValue = SDL.SDL_GameControllerGetAxis(activeController, axis);
                 AxisMoved?.Invoke(axis, axisValue);
-                
+
             }
         }
 

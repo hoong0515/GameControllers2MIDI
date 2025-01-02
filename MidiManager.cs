@@ -1,8 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using NAudio.Midi;
+﻿using NAudio.Midi;
 using SDL2;
 namespace GameControllers2MIDI
 {
@@ -207,7 +203,7 @@ namespace GameControllers2MIDI
                 midiOut.Send(MidiMessage.ChangeControl(controller, value, midiChannel).RawData);
                 Console.WriteLine($"Control Change: Controller={controller}, Value={value}, Channel={midiChannel}");
             }
-            
+
         }
 
         // Pitch Bend 메시지 전송

@@ -94,48 +94,6 @@ namespace GameControllers2MIDI
 
         }
 
-
-
-        private void ControllerDropdown_Selected(object sender, EventArgs e)
-        {
-            if (controllerDropdown.SelectedItem is KeyValuePair<int, string> selectedController)
-            {
-                int controllerIndex = selectedController.Key;
-                deviceManager.SetActiveController(controllerIndex);
-                IntPtr activeController = deviceManager.GetActiveController();
-
-                if (activeController != IntPtr.Zero)
-                {
-                    Console.WriteLine($"Controller {selectedController.Value} is now active.");
-                }
-                else
-                {
-                    Console.WriteLine("Failed to activate the selected controller.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            else
-            {
-                Console.WriteLine("No controller selected!");
-            }
-        }
-
-        private void MidiDeviceDropdown_Selected(object sender, EventArgs e)
-        {
-            if (midiDeviceDropdown.SelectedItem is KeyValuePair<int, string> selectedDevice)
-            {
-                int deviceIndex = selectedDevice.Key;
-                string deviceName = selectedDevice.Value;
-
-                midiManager.SetActiveMidiDevice(deviceIndex);
-                Console.WriteLine($"Active MIDI Device set to: {deviceName} (Index: {deviceIndex})");
-            }
-            else
-            {
-                Console.WriteLine("No MIDI device selected!");
-            }
-        }
-
-
         private void InitializeControllerDropdown()
         {
             controllerDropdown.SelectedIndexChanged += (sender, e) =>
@@ -203,68 +161,6 @@ namespace GameControllers2MIDI
             // MIDI 채널 드롭다운 초기화
             midiChannelDropdown.Items.AddRange(Enumerable.Range(1, 16).Select(i => i.ToString()).ToArray());
             midiChannelDropdown.SelectedIndex = midiManager.GetMidiChannel() - 1; // 기본 선택
-        }
-
-        private void LoadMappingsIntoGrid()
-        {
-            //if (dataGridView.InvokeRequired)
-            //{
-            //    dataGridView.Invoke(new Action(LoadMappingsIntoGrid));
-            //    return;
-            //}
-
-            //dataGridView.Rows.Clear();
-            //foreach (var mapping in mappingManager.GetAllMappings())
-            //{
-            //    var dictionary = mapping.ToDictionary(getEnumName: true);
-
-            //    // DataGridView에 데이터 추가
-            //    dataGridView.Rows.Add(
-            //        dictionary["input"].Substring(15),
-            //        dictionary["map"].ToString(),
-            //        dictionary["value"],
-            //        dictionary["isInverted"],
-            //        dictionary["key"].ToString(),
-            //        dictionary["oct"].ToString(),
-            //        dictionary["velocity"],
-            //        dictionary["isUsingAbs"]
-            //    );
-            //}
-        }
-
-
-
-        private void dataGridView_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            int rowIndex = e.RowIndex;
-            if (rowIndex < 0 || rowIndex >= mappingManager.GetAllMappings().Count) return;
-
-            var row = dataGridView.Rows[rowIndex];
-            var mapping = mappingManager.GetAllMappings()[rowIndex];
-
-            string input = "SDL_CONTROLLER_" + row.Cells["Input"].Value.ToString();
-
-            if (mapping.InputType == InputType.Axis)
-            {
-                if (row.Cells["Map"].Value.ToString() != "Note")
-                {
-                    mapping.Map = Enum.Parse<Map>(row.Cells["Map"].Value.ToString());
-                }
-            }
-
-
-            mapping.ModifyNoteProperty(int.Parse(row.Cells["Value"].Value.ToString()), Enum.Parse<Key>(row.Cells["Key"].Value.ToString()), int.Parse(row.Cells["Octave"].Value.ToString()));
-
-
-
-            mapping.IsInverted = (bool)row.Cells["isInverted"].Value;
-            mapping.Velocity = int.Parse(row.Cells["Velocity"].Value.ToString());
-            mapping.IsUsingAbs = (bool)row.Cells["isUsingAbs"].Value;
-
-
-
-            // 데이터 재로드
-            //LoadMappingsIntoGrid();
         }
 
         private void AddNewMapping(object sender, EventArgs e)
@@ -391,17 +287,6 @@ namespace GameControllers2MIDI
             //LoadMappingsIntoGrid();
         }
 
-        //private void ApplyInputToMapping(SDL.SDL_GameControllerAxis axis, int rowIndex)
-        //{
-        //    //var row = dataGridView.Rows[rowIndex];
-        //    var mapping = mappingManager.GetAllMappings()[rowIndex];
-        //    mapping.Input = axis;
-
-        //    //mappingManager.ModifyMapping(mapping, axis);
-
-        //    //row.Cells["Input"].Value = axis.ToString().Substring(15);
-        //    //LoadMappingsIntoGrid();
-        //}
 
         public void UpdateControllerDropdown(List<string> controllers)
         {
@@ -451,45 +336,11 @@ namespace GameControllers2MIDI
 
 
 
-        private void ComboBox_SelectionChangeCommitted(object sender, EventArgs e)
-        {
-            if (dataGridView.IsCurrentCellInEditMode)
-            {
-                dataGridView.EndEdit(); // 편집 종료
-            }
-        }
-
-        private void mappingBindingSource_CurrentChanged(object sender, EventArgs e)
+        private void MappingBindingSource_CurrentChanged(object sender, EventArgs e)
         {
 
         }
 
-        private void DataGridView_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
-            {
-                var mapping = mappings[e.RowIndex];
-                var columnName = dataGridView.Columns[e.ColumnIndex].Name;
-
-                if (mapping.InputType == InputType.Button)
-                {
-                    if (columnName == "isUsingAbsDataGridViewCheckBoxColumn")
-                    {
-                        e.CellStyle.BackColor = Color.LightGray;
-                        e.CellStyle.ForeColor = Color.DarkGray;
-                    }
-                }
-                else if (mapping.InputType == InputType.Axis)
-                {
-                    if (columnName == "velocityDataGridViewTextBoxColumn")
-                    {
-                        e.CellStyle.BackColor = Color.LightGray;
-                        e.CellStyle.ForeColor = Color.DarkGray;
-                    }
-                }
-            }
-
-        }
 
         private void DataGridView_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e)
         {
@@ -577,6 +428,7 @@ namespace GameControllers2MIDI
                     comboBox.SelectedIndex = previousIndex - 1;
                 }
             }
+
         }
 
         private void DataGridView_CellLeave(object sender, DataGridViewCellEventArgs e)

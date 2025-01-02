@@ -40,7 +40,7 @@ Controllers2MIDI is a Windows application that enables game controllers (e.g., X
    - Ensure your MIDI device is connected and recognized by the system.
 
 2. **Launch the Application**:
-   - Run the `Controllers2MIDI` executable.
+   - Run the `GameControllers2MIDI.exe`.
 
 3. **Configure Settings**:
    - Select a controller and a MIDI device from the dropdown menus.
@@ -55,7 +55,6 @@ Controllers2MIDI is a Windows application that enables game controllers (e.g., X
    - Input from your controller will now be converted into MIDI signals.
 
 ## Known Issues
-- **Important:** While editing data in a row, if you edit data in another row, error occurs.
 - MIDI device list may not dynamically update in certain rare cases.
 - Limited support for third-party or non-standard controllers.
 
